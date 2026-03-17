@@ -114,7 +114,7 @@ We follow [Keep a Changelog](https://keepachangelog.com/en/1.1.0/):
 Every SPA app with a nav shell can display its changelog in-app:
 
 1. **`CHANGELOG.md`** lives at repo root (GitHub renders it natively)
-2. **`public/CHANGELOG.md`** is a symlink: `ln -s ../CHANGELOG.md public/CHANGELOG.md`
+2. **`public/CHANGELOG.md`** is a copy of the root file (Caddy won't follow symlinks outside the served directory). Copy it at release time: `cp CHANGELOG.md public/CHANGELOG.md`
 3. **Nav shell version label** links to `#changelog`
 4. **`#changelog` route** fetches and renders CHANGELOG.md using the shared `changelog.js` parser
 
