@@ -30,6 +30,18 @@
 
 ---
 
+## Dev Version Suffix
+
+The dev branch always shows the **next** version with a `-dev` suffix:
+
+- Main ships `v1.1.0` → dev immediately bumps to `v1.2.0-dev`
+- At release time: drop `-dev`, merge to main, tag `v1.2.0`
+- After release: dev bumps to `v1.3.0-dev`
+
+Update both `package.json` and `R7NavShell.init({ version })` on dev after every release.
+
+---
+
 ## Pre-1.0
 
 While in `v0.x`, anything can change. MINOR bumps can include breaking changes. Once we tag `v1.0.0`, the contract above applies strictly.
