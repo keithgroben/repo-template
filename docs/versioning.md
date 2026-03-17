@@ -119,3 +119,82 @@ Every SPA app with a nav shell can display its changelog in-app:
 4. **`#changelog` route** fetches and renders CHANGELOG.md using the shared `changelog.js` parser
 
 This gives users three ways to read release notes: GitHub, the SPA sidebar version link, or the direct `#changelog` URL.
+
+### Setup Steps
+
+**1. Add script tags** to your SPA's `<head>` (nav-shell and changelog are shared libs hosted on switchboard):
+
+```html
+<script src="https://switchboard.r7c.app/lib/nav-shell.js"></script>
+<script src="https://switchboard.r7c.app/lib/changelog.js"></script>
+```
+
+**2. Pass `version` to `R7NavShell.init()`** — the version label becomes a clickable link to `#changelog`:
+
+```javascript
+var shell = R7NavShell.init({
+    appName: 'My App',
+    appSubtitle: 'ADMIN',
+    version: 'v0.1.0',
+    theme: 'amber',    // red | purple | violet | amber
+    icon: '<path .../>',
+    portalUrl: '/home.html',
+    signOut: function() { /* sign out logic */ },
+    navGroups: [ /* ... */ ]
+});
+```
+
+**3. Add `#changelog` route** to your SPA router:
+
+```javascript
+case 'changelog': renderChangelog(); break;
+```
+
+**4. Add `renderChangelog()` function** (ES5):
+
+```javascript
+function renderChangelog() {
+    var el = document.getElementById('view');
+    el.innerHTML =
+        '<div class="fade-up">' +
+            '<div class="mb-6">' +
+                '<h2 class="text-xl font-bold text-gray-900 tracking-tight">Release Notes</h2>' +
+                '<p class="text-sm text-gray-500 mt-1">Version history for [App Name]</p>' +
+            '</div>' +
+            '<div id="changelog-content">' +
+                '<div class="space-y-3">' +
+                    '<div class="h-4 bg-gray-200 rounded-lg animate-pulse" style="width:60%"></div>' +
+                    '<div class="h-4 bg-gray-200 rounded-lg animate-pulse" style="width:45%"></div>' +
+                '</div>' +
+            '</div>' +
+        '</div>';
+
+    fetch('/CHANGELOG.md')
+        .then(function(res) { return res.text(); })
+        .then(function(text) {
+            var releases = R7Changelog.parse(text);
+            document.getElementById('changelog-content').innerHTML = R7Changelog.renderHTML(releases);
+        })
+        .catch(function() {
+            document.getElementById('changelog-content').innerHTML =
+                '<div class="text-center py-12"><p class="text-sm text-gray-400">Could not load release notes.</p></div>';
+        });
+}
+```
+
+**5. Create `CHANGELOG.md`** at repo root (copy the template from this repo) and copy it to `public/CHANGELOG.md`:
+
+```bash
+cp CHANGELOG.md public/CHANGELOG.md
+```
+
+**6. Create `package.json`** at repo root (if it doesn't exist):
+
+```json
+{
+  "name": "app-name",
+  "version": "0.1.0",
+  "private": true,
+  "description": "[What this app does]"
+}
+```
