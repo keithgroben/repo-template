@@ -5,67 +5,52 @@
 
 ---
 
-## Versioning
+## Up Next
 
-This project uses semantic versioning: `MAJOR.MINOR.PATCH`
+Versioned features queued for development, in priority order.
 
-- **MAJOR** — Breaking changes, major architecture shifts
-- **MINOR** — New feature added
-- **PATCH** — Bug fix or small improvement
+### vX.Y.0 — [Version Name]
 
-Bump the version in `package.json` (or `VERSION` file) when merging a feature branch to main.
+- [ ] [Feature or deliverable]
+- [ ] [Feature or deliverable]
 
----
+### vX.Z.0 — [Version Name]
 
-## Phase 1: [Name this phase — e.g., "Foundation"]
-
-**Target version**: `v0.1.0`
-**Status**: In Progress
-
-| Feature | Status | Notes |
-|---------|--------|-------|
-| [e.g., User authentication] | Done | Supabase Auth with email/password |
-| [e.g., Core data model] | In Progress | Schema defined, migrations pending |
-| [e.g., Email notifications] | Planned | Using Resend |
+- [ ] [Feature or deliverable]
 
 ---
 
-## Phase 2: [Name — e.g., "Core Workflows"]
+## Bug Fixes
 
-**Target version**: `v0.2.0`
-**Status**: Planned
+Known bugs to investigate and fix. No version number — fix when able.
 
-| Feature | Status | Notes |
-|---------|--------|-------|
-| [Feature name] | Planned | [Brief description] |
-| [Feature name] | Planned | [Brief description] |
+- [Description of bug, how to reproduce, impact]
 
 ---
 
-## Phase 3: [Name — e.g., "Polish & Launch"]
+## Unsolved
 
-**Target version**: `v1.0.0`
-**Status**: Planned
+Problems without a clear solution yet. Describe the problem, not a feature spec. Include possible angles if any.
 
-| Feature | Status | Notes |
-|---------|--------|-------|
-| [Feature name] | Planned | [Brief description] |
-
----
-
-## Pivots & Changes
-
-> When the plan changes — and it will — document it here so there's a clear trail.
-
-| Date | What Changed | Why |
-|------|-------------|-----|
-| [YYYY-MM-DD] | [e.g., Switched from Telegram bot to web ingest] | [e.g., Telegram webhook reliability was burning hours] |
+- **[Problem]** — [Context. What's broken or unclear. Possible angles: ...]
 
 ---
 
 ## Backlog
 
-> Features and ideas that don't have a phase yet. Pull from here when planning the next phase.
+Lower-priority items not yet scheduled into a version.
 
-- [Idea or feature]
-- [Idea or feature]
+- [Feature or idea] `[ME]`
+- [Feature or idea] `[CLAUDE]`
+- [Feature or idea] `[TOGETHER]`
+
+---
+
+## Completed
+
+Shipped versions, newest first.
+
+### v0.1.0 — [Version Name] (YYYY-MM-DD)
+
+- [x] [What shipped]
+- [x] [What shipped]
