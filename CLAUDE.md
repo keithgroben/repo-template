@@ -94,3 +94,23 @@ These apply to every feature unless explicitly overridden:
 |-----|-------------|
 | [e.g., The Switchboard] | [e.g., "Shares auth system, nav shell"] |
 | [e.g., RobCo Atomizer] | [e.g., "Receives content via webhook"] |
+
+---
+
+## Roadmap
+
+The project roadmap lives at `docs/roadmap.md`. Keep it organized in this order:
+
+1. **Up Next** — Versioned features queued for development, in priority order
+2. **Bug Fixes** — Known bugs to investigate/fix, no version number
+3. **Unsolved** — Problems without a solution yet. Write the problem, not a feature spec. Include possible angles if any.
+4. **Backlog** — Lower-priority items with ownership tags (`[ME]`, `[CLAUDE]`, `[TOGETHER]`)
+5. **Completed** — Shipped versions, newest first. Each version lists items with `[x]` checkboxes.
+
+Rules:
+- When a version ships, move it from "Up Next" to the top of "Completed" and check off all items.
+- New features go in "Up Next" with the next available version number.
+- Bug reports go in "Bug Fixes" unless they're tied to a specific version.
+- If the user describes a problem they don't know how to solve, put it in "Unsolved" — not "Up Next".
+- Keep "Up Next" in priority order. Don't renumber versions unless the user asks.
+- Commit roadmap changes with the code they relate to, or standalone if it's just a roadmap update.
