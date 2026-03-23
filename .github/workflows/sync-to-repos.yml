@@ -1,0 +1,126 @@
+name: Sync template files to downstream repos
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'PROJECT_PROTOCOL.md'
+      - 'docs/architecture-patterns.md'
+      - 'docs/branching.md'
+      - 'docs/versioning.md'
+      - '.github/sync-config.json'
+
+  workflow_dispatch:
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo-template
+        uses: actions/checkout@v4
+
+      - name: Read sync config
+        id: config
+        run: |
+          echo "repos=$(jq -c '.repos' .github/sync-config.json)" >> $GITHUB_OUTPUT
+          echo "files=$(jq -c '.files' .github/sync-config.json)" >> $GITHUB_OUTPUT
+
+      - name: Sync files to downstream repos
+        env:
+          GH_TOKEN: ${{ secrets.REPO_SYNC_TOKEN }}
+        run: |
+          set -e
+
+          FILES=$(echo '${{ steps.config.outputs.files }}' | jq -r '.[]')
+          REPOS=$(echo '${{ steps.config.outputs.repos }}' | jq -r '.[]')
+          BRANCH="sync/repo-template-$(date +%Y%m%d)"
+          COMMIT_MSG="Sync from repo-template ($(date +%Y-%m-%d))"
+
+          for REPO in $REPOS; do
+            echo "--- Syncing to $REPO ---"
+
+            # Clone downstream repo
+            CLONE_DIR="/tmp/sync-$(echo $REPO | tr '/' '-')"
+            rm -rf "$CLONE_DIR"
+            git clone --depth 1 "https://x-access-token:${GH_TOKEN}@github.com/${REPO}.git" "$CLONE_DIR" 2>/dev/null || {
+              echo "  SKIP: Could not clone $REPO"
+              continue
+            }
+
+            # Check if there are any changes to sync
+            CHANGED=false
+            for FILE in $FILES; do
+              if [ -f "$FILE" ]; then
+                # Ensure target directory exists
+                mkdir -p "$CLONE_DIR/$(dirname $FILE)"
+
+                # Compare files
+                if [ -f "$CLONE_DIR/$FILE" ]; then
+                  if ! diff -q "$FILE" "$CLONE_DIR/$FILE" > /dev/null 2>&1; then
+                    cp "$FILE" "$CLONE_DIR/$FILE"
+                    CHANGED=true
+                    echo "  Updated: $FILE"
+                  fi
+                else
+                  cp "$FILE" "$CLONE_DIR/$FILE"
+                  CHANGED=true
+                  echo "  Added: $FILE"
+                fi
+              fi
+            done
+
+            if [ "$CHANGED" = false ]; then
+              echo "  No changes for $REPO"
+              rm -rf "$CLONE_DIR"
+              continue
+            fi
+
+            # Create branch and PR
+            cd "$CLONE_DIR"
+            git config user.name "repo-template-sync"
+            git config user.email "sync@r7c.app"
+
+            # Check if branch already exists
+            git checkout -b "$BRANCH" 2>/dev/null || {
+              echo "  SKIP: Branch $BRANCH already exists in $REPO"
+              cd /
+              rm -rf "$CLONE_DIR"
+              continue
+            }
+
+            git add -A
+            git commit -m "$COMMIT_MSG" || {
+              echo "  No changes to commit for $REPO"
+              cd /
+              rm -rf "$CLONE_DIR"
+              continue
+            }
+
+            git push origin "$BRANCH" 2>/dev/null || {
+              echo "  SKIP: Could not push to $REPO"
+              cd /
+              rm -rf "$CLONE_DIR"
+              continue
+            }
+
+            # Create PR
+            gh pr create \
+              --repo "$REPO" \
+              --base main \
+              --head "$BRANCH" \
+              --title "Sync from repo-template" \
+              --body "Automated sync of shared files from [repo-template](https://github.com/keithgroben/repo-template).
+
+          ### Files updated
+          $(for FILE in $FILES; do [ -f "/tmp/sync-$(echo $REPO | tr '/' '-')/$FILE" ] && echo "- \`$FILE\`"; done)
+
+          ---
+          *This PR was created automatically by the repo-template sync workflow.*" \
+              2>/dev/null || echo "  PR already exists or could not be created for $REPO"
+
+            cd /
+            rm -rf "$CLONE_DIR"
+            echo "  PR created for $REPO"
+          done
+
+          echo "--- Sync complete ---"
