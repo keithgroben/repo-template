@@ -26,6 +26,9 @@ Known bugs to investigate and fix. No version number — fix when able.
 
 - [Description of bug, how to reproduce, impact]
 
+### Standard: Bug Report Button Placement
+All apps must follow the LoopBack pattern: version text on left, "Report a Bug" text link on right. Placed in the app's footer area (sidebar footer for desktop-first apps, bottom tab bar footer for mobile-first apps). No floating FAB buttons. Modal must be closeable on mobile (explicit close button + backdrop tap).
+
 ---
 
 ## Unsolved
