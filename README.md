@@ -15,15 +15,24 @@ Preact + htm · Tailwind CDN · Supabase · Caddy · n8n
 
 ## Docs
 
-| Doc | Purpose |
-|-----|---------|
-| `PROJECT_PROTOCOL.md` | Claude Code session rules |
-| `CLAUDE.md` | App-specific context (schema, APIs, gotchas) |
-| `docs/overview.md` | Architecture and stack decisions |
-| `docs/decisions.md` | Lessons learned |
-| `docs/roadmap.md` | Feature tracking |
-| `docs/branching.md` | Git workflow |
-| `docs/versioning.md` | Semantic versioning rules |
+| Doc | Purpose | Syncs? |
+|-----|---------|--------|
+| `PROJECT_PROTOCOL.md` | Claude Code session rules | Yes |
+| `docs/architecture-patterns.md` | n8n patterns, direct DB, conventions | Yes |
+| `docs/branching.md` | Git workflow | Yes |
+| `docs/versioning.md` | Semantic versioning rules | Yes |
+| `CLAUDE.md` | App-specific context (schema, APIs, gotchas) | No |
+| `docs/overview.md` | Architecture and stack decisions | No |
+| `docs/decisions.md` | Lessons learned | No |
+| `docs/roadmap.md` | Feature tracking | No |
+
+## Template Sync
+
+Files marked "Syncs" are automatically pushed to downstream repos via GitHub Action when updated here. The action opens a PR in each repo for review.
+
+**Config**: `.github/sync-config.json` — lists target repos and synced files.
+
+**Requires**: A GitHub PAT stored as `REPO_SYNC_TOKEN` secret with repo access to all target repos.
 
 ## Structure
 

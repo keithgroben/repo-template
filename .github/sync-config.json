@@ -1,0 +1,20 @@
+{
+  "files": [
+    "PROJECT_PROTOCOL.md",
+    "docs/architecture-patterns.md",
+    "docs/branching.md",
+    "docs/versioning.md"
+  ],
+  "repos": [
+    "Wayfinder-Digital/ygraphics-loopback",
+    "Wayfinder-Digital/r7capp-the-switchboard",
+    "Wayfinder-Digital/r7capp-robco-atomizer",
+    "Wayfinder-Digital/r7capp-cb-forms",
+    "Wayfinder-Digital/nixie-intake",
+    "Wayfinder-Digital/r7capp-atom-bomb",
+    "Wayfinder-Digital/r7capp-gracie-law",
+    "Wayfinder-Digital/r7capp-the-porkchop-express",
+    "Wayfinder-Digital/nixie-engine",
+    "Wayfinder-Digital/nixie-vision"
+  ]
+}
