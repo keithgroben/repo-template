@@ -204,7 +204,7 @@ function renderChangelog() {
             '</div>' +
         '</div>';
 
-    fetch('/CHANGELOG.md')
+    fetch('/CHANGELOG.md?v=' + Date.now())
         .then(function(res) { return res.text(); })
         .then(function(text) {
             var releases = R7Changelog.parse(text);
