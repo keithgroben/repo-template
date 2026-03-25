@@ -14,6 +14,35 @@
 
 ---
 
+## Migration Status
+
+> Fill this section when migrating this app to the new stack. Remove after v2.0.0 ships.
+
+| Field | Value |
+|-------|-------|
+| **Migration wave** | [e.g., Wave 1 / Wave 2 / Wave 3 / Wave 4 / Wave 5 / Wave 6] |
+| **Server** | [e.g., r7c.app / explorer-one] |
+| **Target state** | Preact+JSX+Vite + Hono API + Supabase/Postgres |
+| **Frontend work** | [e.g., "Vanilla JS → Preact+JSX+Vite" / "Already React+Vite, no change"] |
+| **Backend work** | [e.g., "Express → Hono" / "Add Hono (no backend yet)" / "4 n8n workflows → Hono routes"] |
+| **Risk level** | [Low / Medium / High — and why] |
+| **Blocked by** | [e.g., "Atom Bomb must migrate first (owns profiles table)" / "Nothing"] |
+
+### Workflows to replace (if applicable)
+
+| Workflow ID | Name | Trigger | Hono Route | Status |
+|-------------|------|---------|------------|--------|
+| [ID] | [Name] | [Cron / Webhook] | [POST /api/...] | [Pending / Done] |
+
+### Key migration decisions for this app
+
+- [e.g., "PIN auth — this is an internal tool"]
+- [e.g., "Portal at r7c.app root served from this repo — must keep working during migration"]
+
+Follow `docs/migration-checklist.md` for step-by-step process. Dev branch: `dev/v2.0`.
+
+---
+
 ## Database Schema
 
 **Supabase project**: [project name or URL]
@@ -28,21 +57,22 @@
 ### RLS Notes
 
 - [e.g., "Users can only read their own org's data"]
-- [e.g., "Service role key used only in n8n, never in SPA"]
+- [e.g., "Service role key used only in Hono server (.env), never in the SPA"]
 
 ---
 
-## API Endpoints & Webhooks
+## Hono API Routes
 
-| Endpoint | Method | Purpose | Called from |
-|----------|--------|---------|------------|
-| [e.g., /webhook/abc123] | POST | [What it does] | [SPA / n8n / external] |
+| Route | Method | Purpose | Auth |
+|-------|--------|---------|------|
+| [e.g., /api/items] | GET | [List items] | [JWT / PIN / none] |
+| [e.g., /api/items] | POST | [Create item] | [JWT / PIN] |
 
 ---
 
 ## Auth Flow
 
-[How does auth work in this specific app? Which Supabase Auth method? Any Authelia specifics?]
+[How does auth work in this specific app? Supabase JWT? PIN? Authelia forward auth?]
 
 ---
 
@@ -51,20 +81,19 @@
 | Environment | URL | Notes |
 |-------------|-----|-------|
 | Production | [e.g., app.r7c.app] | Caddy reverse proxy |
-| Dev/Local | [e.g., localhost:3000] | [How to run locally if applicable] |
+| Dev | [e.g., localhost:5173] | Vite dev server (proxies /api/* to :3001) |
 
 ---
 
 ## App-Specific Conventions
 
-[Anything unique to this app that differs from the standard stack. Custom component patterns, non-standard data flows, third-party integrations, etc.]
+[Anything unique to this app that differs from the standard stack.]
 
 ---
 
 ## Known Gotchas
 
 - [e.g., "The status field uses 'Active'/'Inactive' strings, not booleans"]
-- [e.g., "Webhook X requires a specific header for auth"]
 - [e.g., "Don't touch the legacy_users table — it's synced from an external system"]
 
 ---
@@ -74,17 +103,9 @@
 These apply to every feature unless explicitly overridden:
 
 - **Error handling**: Never show a blank screen or raw error. Every failed fetch, timeout, and edge case gets a user-facing message. Use Toast for transient errors, EmptyState for "no data" states, and a fallback UI for unexpected crashes.
-- **Data protection**: Row-level security or equivalent access control on every table. Service-role credentials stay in n8n — never in the SPA. Never log emails, tokens, or payment info. Never paste secrets into chat.
-- **Scale expectation**: [State it here — e.g., "10-50 internal users" or "500+ public signups". This tells Claude Code whether to optimize for simplicity or durability.]
-- **Separation of concerns**: Every component, workflow, and integration must function by itself, stand by itself, and fail by itself. If a failure in one system cascades to another, refactor before building further.
-
----
-
-## n8n Workflows
-
-| Workflow | Trigger | Purpose |
-|----------|---------|---------|
-| [workflow_name] | [e.g., webhook / cron / manual] | [What it does] |
+- **Data protection**: Row-level security on every table. Service-role credentials stay in the Hono server (`.env`) — never in the SPA. Never log emails, tokens, or payment info. See `docs/secrets.md` for rotation procedures.
+- **Scale expectation**: [State it — e.g., "10-50 internal users" or "500+ public signups".]
+- **Separation of concerns**: Every component, route, and integration must function by itself, stand by itself, and fail by itself.
 
 ---
 
@@ -93,7 +114,6 @@ These apply to every feature unless explicitly overridden:
 | App | Relationship |
 |-----|-------------|
 | [e.g., The Switchboard] | [e.g., "Shares auth system, nav shell"] |
-| [e.g., RobCo Atomizer] | [e.g., "Receives content via webhook"] |
 
 ---
 
@@ -102,10 +122,10 @@ These apply to every feature unless explicitly overridden:
 The project roadmap lives at `docs/roadmap.md`. Keep it organized in this order:
 
 1. **Up Next** — Versioned features queued for development, in priority order
-2. **Bug Fixes** — Known bugs to investigate/fix, no version number
-3. **Unsolved** — Problems without a solution yet. Write the problem, not a feature spec. Include possible angles if any.
+2. **Bug Fixes** — Known bugs to investigate/fix
+3. **Unsolved** — Problems without a solution yet
 4. **Backlog** — Lower-priority items with ownership tags (`[ME]`, `[CLAUDE]`, `[TOGETHER]`)
-5. **Completed** — Shipped versions, newest first. Each version lists items with `[x]` checkboxes.
+5. **Completed** — Shipped versions, newest first
 
 Rules:
 - When a version ships, move it from "Up Next" to the top of "Completed" and check off all items.
@@ -113,7 +133,6 @@ Rules:
 - Bug reports go in "Bug Fixes" unless they're tied to a specific version.
 - If the user describes a problem they don't know how to solve, put it in "Unsolved" — not "Up Next".
 - Keep "Up Next" in priority order. Don't renumber versions unless the user asks.
-- Commit roadmap changes with the code they relate to, or standalone if it's just a roadmap update.
 
 ---
 
@@ -121,10 +140,10 @@ Rules:
 
 **MANDATORY: When the user approves/signs off on a version, perform ALL of these steps before moving on to the next feature:**
 
-1. Update the version constant in the SPA entry point (e.g. `app.js`, `package.json`, or wherever VERSION is defined)
+1. Update the version constant in `package.json` and any in-app version display
 2. Update `CHANGELOG.md` with the new version entry (date, what was added/changed/fixed)
 3. Update `docs/roadmap.md` — move the version from "Up Next" to "Completed" with `[x]` checkboxes
-4. If applicable: update cache-bust param in `index.html` (increment `?v=` value)
+4. `npm run build` — verify build succeeds
 5. Commit all changes together in one commit
 6. Push to GitHub
 7. Deploy to production if applicable

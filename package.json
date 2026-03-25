@@ -1,6 +1,30 @@
 {
   "name": "repo-template",
-  "version": "0.3.0",
+  "version": "1.0.0",
   "private": true,
-  "description": "R7 Creative — Repo template for all app projects"
+  "type": "module",
+  "description": "R7 Creative — Repo template for all app projects",
+  "scripts": {
+    "dev": "node --watch server/index.js",
+    "dev:client": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "start": "node server/index.js",
+    "smoke": "node scripts/smoke-test.js"
+  },
+  "dependencies": {
+    "hono": "^4.0.0",
+    "@hono/node-server": "^1.0.0",
+    "@supabase/supabase-js": "^2.0.0"
+  },
+  "optionalDependencies": {
+    "node-cron": "^3.0.0"
+  },
+  "devDependencies": {
+    "vite": "^6.0.0",
+    "preact": "^10.0.0",
+    "@preact/preset-vite": "^2.0.0",
+    "tailwindcss": "^4.0.0",
+    "@tailwindcss/vite": "^4.0.0"
+  }
 }

@@ -4,133 +4,115 @@
 
 ---
 
-## n8n as Orchestration Layer
+## Hono API Backend
 
-n8n is the backend for all R7/Wayfinder apps. It handles routing, webhooks, and light data operations. It is **not** a data processing engine.
+Hono is the API server for all apps. It handles CRUD, webhooks, scheduled jobs, and external API integrations.
 
-### What n8n handles well
+### When to use Hono vs. direct SPA-to-Supabase
 
-| Use Case | Example |
-|----------|---------|
-| Webhook routing | Single endpoint, action-based switch (`POST /webhook/app/api`) |
-| Simple CRUD | Single-row inserts, updates, deletes via Code node + Postgres |
-| Cron scheduling | Email send queues, polling, cleanup jobs |
-| External API calls | Resend, Frame.io, GitHub, Telegram |
-| Workflow logic | If/then branching, error handling, notifications |
-| Light transforms | Small JSON reshaping in Code nodes |
+| Use Case | Approach |
+|----------|----------|
+| Read data with RLS (user's own rows) | SPA → Supabase direct (`sb.from().select()`) |
+| Write data with RLS (user creates/edits own rows) | SPA → Supabase direct |
+| Admin operations (bypass RLS, service role) | SPA → Hono API → Supabase (service role client) |
+| External API calls (Resend, Frame.io, Anthropic) | SPA → Hono API → external service |
+| Webhook receivers (bounces, callbacks) | External → Hono webhook route |
+| Scheduled jobs (cron) | `node-cron` in Hono server |
+| Multi-step transactions (query + update atomically) | SPA → Hono API → PG function or multiple queries |
 
-### What n8n does NOT handle well
+**Rule**: If the SPA can do it safely with the anon key + RLS, skip Hono. If it needs a service role key, an external API key, or server-side logic, go through Hono.
 
-| Use Case | Why | Workaround |
-|----------|-----|------------|
-| Bulk data inserts (100+ rows) | Code node task runner has ~200KB payload ceiling, crashes after accumulated load | Direct DB pattern (see below) |
-| Large SQL string building | V8 sandbox memory limit (512MB old space) doesn't recover between rapid executions | Build SQL client-side, send to dedicated webhook |
-| Heavy computation | Task runner is single-threaded, blocks other executions | Offload to external script or PG function |
-| File processing | Binary data handling is fragile, memory-intensive | Use Gotenberg, ffmpeg, or native tools on host |
-
-### Key n8n limits (discovered empirically)
-
-- **~200KB payload per Code node execution** — larger payloads cause silent failures
-- **~12 rapid sequential webhook executions** — task runner accumulates state and stops responding
-- **Task runner memory: 512MB V8 heap** — set via `N8N_RUNNERS_MAX_OLD_SPACE_SIZE`
-- **Task runner can't be disabled** on n8n 2.10.x+ (runs regardless of `N8N_RUNNERS_DISABLED`)
-- **Webhook secrets regenerate on import** — Telegram webhooks break after workflow import (delete + re-register)
-
----
-
-## Direct DB Pattern
-
-When n8n's Code node can't handle the data volume, bypass it entirely.
-
-### The pattern
+### Project structure
 
 ```
-SPA builds SQL client-side → Dedicated webhook (no Code node) → Postgres node → Respond
+server/
+├── index.js          — Hono app setup, middleware, server start
+├── routes/
+│   ├── items.js      — /api/items CRUD routes
+│   ├── webhooks.js   — /webhook/* receivers
+│   └── admin.js      — /api/admin/* protected routes
+├── middleware/
+│   └── auth.js       — Supabase JWT or PIN auth middleware
+├── jobs/
+│   └── cron.js       — node-cron scheduled jobs
+└── lib/
+    └── supabase.js   — Supabase client initialization (admin + user-scoped)
 ```
 
-### When to use
+### Auth patterns
 
-- Bulk imports (100+ rows)
-- Any operation that builds SQL strings > 100KB
-- Batch operations that would require many sequential webhook calls
-
-### How to implement
-
-1. **SPA**: Build the INSERT/UPDATE SQL in JavaScript (with proper escaping)
-2. **Dedicated n8n workflow**: Webhook → Postgres (executeQuery: `{{ $json.body.sql }}`) → Respond
-3. **No Code node** in the pipeline — the SQL goes straight from webhook body to Postgres
-
-### Example (from LoopBack)
-
-```javascript
-// SPA builds SQL
-var sql = "WITH inserted AS (INSERT INTO customers (...) VALUES "
-    + vals.join(',')
-    + " ON CONFLICT (email) DO NOTHING RETURNING id) SELECT COUNT(*) FROM inserted";
-
-// Send to dedicated webhook
-fetch('/webhook/app/import', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ sql: sql })
-});
+**Supabase JWT** (for apps with user login):
+```
+SPA gets JWT from Supabase Auth → sends as Bearer token → Hono validates with getUser() → creates user-scoped Supabase client → RLS applies
 ```
 
-### Security note
-
-The SPA sends raw SQL to the webhook. This is acceptable because:
-- The app runs on a Tailscale network (no public access)
-- There is no untrusted user input — the SPA controls the SQL construction
-- The webhook endpoint is separate from the main API (can be restricted or removed)
-
-For public-facing apps, use parameterized queries or a server-side import endpoint instead.
-
----
-
-## Webhook Conventions
-
-### URL structure
-
+**PIN auth** (for internal tools):
 ```
-/webhook/{app}/api        — Main CRUD API (action-based routing)
-/webhook/{app}/import     — Bulk import (direct DB, no Code node)
-/webhook/{app}/img        — Image serving (if using DB-stored images)
-/webhook/{app}/bounce     — External webhook receiver (e.g., Resend bounces)
+SPA sends PIN as x-app-pin header → Hono checks against APP_PIN env var → sbAdmin (service role) used for all queries
 ```
 
-### Action-based routing
+### Middleware stack
 
-All CRUD goes through a single webhook. The request body contains `{ action, data }`. A Code node switches on `action` and builds the SQL query.
+Applied in order for all `/api/*` routes:
 
-```javascript
-// Request
-{ "action": "customers.list", "data": {} }
-{ "action": "customers.create", "data": { "first_name": "John", ... } }
+1. **CORS** — `cors()` from `hono/cors` (allow SPA origin)
+2. **Logger** — `logger()` from `hono/logger` (request logging)
+3. **Auth** — Custom middleware (JWT validation or PIN check)
 
-// Code node
-switch (action) {
-    case 'customers.list': query = 'SELECT * FROM customers'; break;
-    case 'customers.create': query = 'INSERT INTO ...'; break;
-}
-```
+### Error handling
+
+- Route handlers catch Supabase errors and return `{ error: message }` with appropriate status code
+- `app.onError()` catches uncaught exceptions, logs them, returns 500
+- `app.notFound()` returns 404 for unknown routes
+- Never expose stack traces or internal details in error responses
 
 ### Response format
 
-All API responses are JSON arrays. Even single-row responses return `[{ ... }]`. Empty results return `[]`.
+All API responses are JSON. Arrays for list endpoints, objects for single-item endpoints.
+
+```javascript
+GET  /api/items       → [{ id, name, ... }, ...]    // Array (even if empty)
+POST /api/items       → { id, name, ... }            // Created object
+PUT  /api/items/:id   → { id, name, ... }            // Updated object
+DELETE /api/items/:id → { deleted: true }
+```
+
+### Caddy configuration
+
+Caddy serves the built SPA and reverse-proxies API requests to Hono:
+
+```
+your-app.example.com {
+    handle /api/* {
+        reverse_proxy api:3001
+    }
+    handle /webhook/* {
+        reverse_proxy api:3001
+    }
+    handle /health {
+        reverse_proxy api:3001
+    }
+    handle {
+        root * /srv/dist
+        file_server
+        try_files {path} /index.html
+    }
+}
+```
 
 ---
 
 ## PG Functions for Complex Logic
 
-When business logic is too complex for a Code node but needs to run atomically, use a PostgreSQL function.
+When business logic is too complex for a route handler but needs to run atomically, use a PostgreSQL function.
 
 ### When to use
 
 - Multi-step calculations that depend on current DB state
 - Operations that need to query + update in one transaction
-- Logic that would require multiple sequential queries in n8n
+- Logic that would require multiple sequential queries
 
-### Example (from LoopBack — send throttling)
+### Example
 
 ```sql
 CREATE FUNCTION calculate_send_after(p_customer_id UUID, p_requested_time TIMESTAMPTZ)
@@ -140,51 +122,43 @@ RETURNS TIMESTAMPTZ AS $$
 $$ LANGUAGE plpgsql;
 ```
 
-Called from the Code node: `calculate_send_after(customer_id, now())`
+Called from Hono: `await sbAdmin.rpc('calculate_send_after', { p_customer_id: id, p_requested_time: now })`
 
 ---
 
 ## SPA Architecture
 
-### No build step
+### Stack
 
-All R7/Wayfinder SPAs use Preact + htm + Tailwind Play CDN. No webpack, no bundler, no transpiler. Files are served directly by Caddy.
+Preact + JSX + Vite + Tailwind CSS. Built and served as static files by Caddy. Swap Preact for React when an app needs the broader React ecosystem.
 
 ### File structure
 
 ```
-public/
-├── index.html          — Entry point, CDN imports
-├── app.js              — Root component, routing, global state
-├── config/
-│   └── urls.js         — API helper, base URL
-├── lib/
-│   ├── preact.js       — Preact/htm re-exports
-│   └── [shared].js     — Shared utilities
+src/
+├── index.jsx          — Entry point, mounts App to #app
+├── index.css          — @import "tailwindcss"
 ├── components/
-│   └── [Component].js  — Reusable UI components
-└── views/
-    └── [View].js       — Page-level views
+│   └── [Component].jsx — Reusable UI components
+├── views/
+│   └── [View].jsx     — Page-level views (one per route)
+└── lib/
+    ├── supabase.js    — Supabase client + auth helpers
+    └── api.js         — Fetch wrapper for /api/* calls
 ```
 
 ### State management
 
-- Global state lives in `app.js` (session, shared data like senders/templates/tags)
+- Global state lives in the root App component (session, shared data)
 - View state lives in each view component
 - Persistence: `localStorage` for session, route, and view preferences
-- No state library — `useState` and prop passing is sufficient for 3-user tools
-
-### Code style
-
-- ES5 (`var`, `function(){}`) in view components for consistency
-- Modern (`const`, `=>`) acceptable in `app.js` and utilities
-- No `let` — use `var` or `const`
+- No state library — `useState` and prop passing is sufficient for most apps
 
 ---
 
 ## Separation of Concerns
 
-From PROJECT_PROTOCOL.md — every component must answer YES to:
+Every component, module, or route must answer YES to:
 
 1. **Can it function by itself?**
 2. **Can it stand by itself?** (no hidden dependencies)
@@ -193,7 +167,6 @@ From PROJECT_PROTOCOL.md — every component must answer YES to:
 ### In practice
 
 - **Views**: Each view loads its own data and manages its own state
-- **Components**: Receive all data via props, never call APIs directly (except modals that create inline)
-- **Modals**: Extracted into standalone component files, not inlined in views
-- **Shared logic**: Extracted to `lib/` (e.g., `email-render.js`, `tag-colors.js`)
-- **n8n workflows**: One workflow per concern (API, email send, image serve, bounce handler, import)
+- **Components**: Receive all data via props, never call APIs directly
+- **Hono routes**: One route file per resource, self-contained
+- **Shared logic**: Extracted to `lib/` (SPA) or `server/lib/` (API)

@@ -13,11 +13,16 @@ This document governs every Claude Code session on this repo. Read it first. Fol
 At the start of every session, read the following files in this order:
 
 1. `PROJECT_PROTOCOL.md` (this file)
-2. `docs/overview.md` — what this app is and why it exists
-3. `docs/decisions.md` — lessons learned, problems solved, things that don't work
-4. Latest file in `docs/handoffs/` — where we left off last session
+2. `CLAUDE.md` — app-specific context, schema, APIs, migration status
+3. `docs/overview.md` — what this app is and why it exists
+4. `docs/decisions.md` — lessons learned, problems solved, things that don't work
+5. Latest file in `docs/handoffs/` — where we left off last session
 
-Do not begin work until all four are read.
+**For migration sessions**, also read:
+6. `docs/migration-checklist.md` — step-by-step process
+7. `docs/migration-waves.md` — wave order, dependencies, blockers
+
+Do not begin work until all applicable files are read.
 
 ---
 
@@ -78,6 +83,38 @@ Every component, module, or feature must answer YES to all three:
 3. **Can it fail by itself?** (failure doesn't cascade)
 
 If the answer to any of these is NO, refactor before building further.
+
+---
+
+## Migration Sessions
+
+> These rules apply when the current session is migrating an app from n8n to Hono (v1.x → v2.0).
+
+### Before starting migration work
+
+1. Read `CLAUDE.md` — the Migration Status section tells you the wave, current/target state, and what workflows to replace.
+2. Read `docs/migration-checklist.md` — follow it step by step.
+3. Read `docs/migration-waves.md` — understand blockers and dependencies for this wave.
+4. Check that any blocking apps (listed in CLAUDE.md → "Blocked by") have already shipped their v2.0.
+
+### Migration-specific constraints
+
+- **One workflow at a time.** Migrate a single n8n workflow to a Hono route, test it end-to-end, then move to the next. Never migrate multiple workflows in parallel.
+- **n8n stays running.** Do not stop, delete, or modify n8n workflows during migration. Only deactivate a workflow AFTER its Hono replacement is tested and verified in production.
+- **Parallel testing.** During migration, both the old n8n route and the new Hono route may be live. The SPA switches to the Hono route when ready. Verify the new route before switching.
+- **48-hour bake.** After all workflows for an app are migrated and verified, wait 48 hours of production monitoring before starting the next app.
+- **Dev branch.** All migration work happens on `dev/v2.0`. Never commit migration changes directly to main.
+
+### Migration phase gates
+
+The standard Phase 0–3 gates apply, with these migration-specific additions:
+
+| Phase | Migration addition |
+|-------|-------------------|
+| Phase 0 (Discover) | List all n8n workflows and their IDs. Audit git history for secrets. |
+| Phase 1 (Map) | Map each n8n workflow to its Hono route equivalent. Document the mapping. |
+| Phase 2 (Issue) | Write the route handler code. Identify what could break during switchover. |
+| Phase 3 (Execute) | Migrate one workflow, test, switch SPA, verify, deactivate n8n workflow. Repeat. |
 
 ---
 

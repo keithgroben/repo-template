@@ -8,6 +8,7 @@ on:
       - 'docs/architecture-patterns.md'
       - 'docs/branching.md'
       - 'docs/versioning.md'
+      - 'docs/secrets.md'
       - '.github/sync-config.json'
 
   workflow_dispatch:
