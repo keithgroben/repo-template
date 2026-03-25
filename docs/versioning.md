@@ -160,8 +160,8 @@ header @dynamic Cache-Control "no-cache, must-revalidate"
 **1. Add script tags** to your SPA's `<head>` (nav-shell and changelog are shared libs):
 
 ```html
-<script src="https://r7c.app/switch/lib/nav-shell.js"></script>
-<script src="https://r7c.app/switch/lib/changelog.js"></script>
+<script src="https://r7c.app/lib/nav-shell.js"></script>
+<script src="https://r7c.app/lib/changelog.js"></script>
 ```
 
 **2. Pass `version` to `R7NavShell.init()`** — the version label becomes a clickable link to `#changelog`:
