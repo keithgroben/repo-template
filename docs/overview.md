@@ -12,21 +12,19 @@
 
 ## Core Architecture
 
-- **Frontend**: Preact + htm SPA, Tailwind Play CDN, served by Caddy (no build step)
+- **Frontend**: Preact + JSX, built with Vite, styled with Tailwind CSS
+- **API**: Hono (Node.js) — CRUD, webhooks, scheduled jobs
 - **Database**: Supabase (PostgreSQL) — schema: `[your_schema]`
-- **Auth**: Supabase Auth (email + password), RLS enforced
-- **Orchestration**: n8n workflows (Docker)
-- **Email**: Resend (via n8n webhooks, never called from SPA)
-- **Hosting**: Static files on Caddy (Docker volume mount)
+- **Auth**: Supabase Auth, RLS enforced. JWT validated in Hono middleware.
+- **Email**: Resend (via Hono API, never called from SPA)
+- **Deploy**: Docker Compose — Caddy (static files + reverse proxy) + Hono API container
 
 ## Shared Modules
 
-This app uses the following shared R7 ecosystem modules:
-
 | Module | Source | Purpose |
 |--------|--------|---------|
-| `supabase-auth.js` | `switchboard.r7c.app/lib/` | Supabase client + auth helpers |
-| `nav-shell.js` | `switchboard.r7c.app/lib/` | Sidebar navigation shell |
+| `supabase-auth.js` | Template | Supabase client + auth helpers |
+| `api.js` | Template | Fetch wrapper for Hono API calls |
 
 ## Key Integrations
 
@@ -43,11 +41,13 @@ This app uses the following shared R7 ecosystem modules:
 
 | Decision | Rationale |
 |----------|-----------|
-| Preact + htm over vanilla JS | Components reduce line count ~50%, auto-escaping, cleaner event handling. No build step required. |
-| Preact over React | 3KB vs 40KB+. Same API. No build step. CDN-loaded. |
-| Tailwind Play CDN (not static build) | ~70% of UI rendered by JS at runtime. Static Tailwind build misses classes in string templates. See Switchboard postmortem 2026-02-25. |
+| Preact over React | 3KB vs 40KB+. Same API. Swap to React if the app needs the broader ecosystem. |
+| Hono over Express | Lightweight (~14KB), Web Standards API, built-in middleware, modern. |
+| Vite for builds | Fast dev server, instant HMR, optimized production bundles. |
+| Tailwind CSS (built) | Utility-first, tree-shaken in production, full IDE support. |
 | Hash routing (not pushState) | No server config needed. Works with any static file host. SPA doesn't need SEO. |
-| Supabase direct queries (not API wrapper) | RLS enforces access. Anon key + user JWT is sufficient. Only service_role operations go through n8n. |
+| Supabase direct reads from SPA | RLS enforces access. Anon key + user JWT is sufficient for user-scoped reads. |
+| Hono API for writes/admin ops | Service-role key stays server-side. External API calls go through Hono, never SPA. |
 
 ## Related Docs
 

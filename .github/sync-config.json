@@ -3,7 +3,8 @@
     "PROJECT_PROTOCOL.md",
     "docs/architecture-patterns.md",
     "docs/branching.md",
-    "docs/versioning.md"
+    "docs/versioning.md",
+    "docs/secrets.md"
   ],
   "repos": [
     "Wayfinder-Digital/ygraphics-loopback",

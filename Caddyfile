@@ -1,0 +1,27 @@
+# ─── Caddyfile Template ───────────────────────────────────
+# Replace :8080 with your domain for production TLS.
+# Caddy auto-provisions HTTPS when using a real domain.
+
+:8080 {
+    # API routes → Hono server
+    handle /api/* {
+        reverse_proxy api:3001
+    }
+
+    # Webhook receivers → Hono server
+    handle /webhook/* {
+        reverse_proxy api:3001
+    }
+
+    # Health check → Hono server
+    handle /health {
+        reverse_proxy api:3001
+    }
+
+    # Everything else → static SPA files
+    handle {
+        root * /srv/dist
+        file_server
+        try_files {path} /index.html
+    }
+}

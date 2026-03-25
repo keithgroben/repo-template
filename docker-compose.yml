@@ -1,0 +1,61 @@
+# ─── Docker Compose Template ──────────────────────────────
+# Customize per app. Remove services you don't need.
+#
+# Usage:
+#   docker compose up -d          # Start all services
+#   docker compose logs -f api    # Tail API logs
+#   docker compose down           # Stop all services
+
+services:
+  # ─── SPA (Caddy static file server + reverse proxy) ────
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - "${CADDY_PORT:-8080}:80"
+      - "${CADDY_TLS_PORT:-8443}:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - ./dist:/srv/dist:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - api
+
+  # ─── Hono API Server ───────────────────────────────────
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "${API_PORT:-3001}:3001"
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3001/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  # ─── PostgreSQL (if self-hosted, skip if using Supabase cloud) ─
+  # postgres:
+  #   image: postgres:16-alpine
+  #   restart: unless-stopped
+  #   ports:
+  #     - "${PG_PORT:-5432}:5432"
+  #   environment:
+  #     POSTGRES_DB: ${PG_DATABASE:-app}
+  #     POSTGRES_USER: ${PG_USER:-postgres}
+  #     POSTGRES_PASSWORD: ${PG_PASSWORD}
+  #   volumes:
+  #     - pg_data:/var/lib/postgresql/data
+  #     - ./supabase:/docker-entrypoint-initdb.d:ro
+
+volumes:
+  caddy_data:
+  caddy_config:
+  # pg_data:
