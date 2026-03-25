@@ -125,13 +125,26 @@ This gives users three ways to read release notes: GitHub, the SPA sidebar versi
 
 ### Caddy Setup (LoopBack Pattern)
 
-**1. Add a bind mount** in `docker-compose.yml` for the root CHANGELOG.md:
+**1. Symlink directory** — changelogs are served via a shared symlink directory, not individual file mounts (individual file bind mounts go stale when the file inode changes on edit):
 
-```yaml
-- /path/to/repo/CHANGELOG.md:/var/www/changelogs/my-app.md:ro
+```
+~/projects/www/changelogs/
+├── atom-bomb.md → ~/projects/.../r7capp-atom-bomb/CHANGELOG.md
+├── switchboard.md → ~/projects/.../the-switchboard/CHANGELOG.md
+└── my-app.md → ~/projects/.../my-app/CHANGELOG.md
 ```
 
-**2. Add rewrite + handler** in the Caddyfile (inside the `r7c.app` block, BEFORE `handle_path` blocks):
+Create the symlink: `ln -sf /path/to/repo/CHANGELOG.md ~/projects/www/changelogs/my-app.md`
+
+**2. Docker mounts** in `docker-compose.yml` — mount BOTH the symlink directory AND the projects root (so symlink targets resolve inside the container):
+
+```yaml
+volumes:
+  - /home/rocketman7k/projects:/home/rocketman7k/projects:ro
+  - /home/rocketman7k/projects/www/changelogs:/var/www/changelogs:ro
+```
+
+**3. Add rewrite + handler** in the Caddyfile (inside the `r7c.app` block, BEFORE `handle_path` blocks):
 
 ```caddy
 # Changelogs — rewrite fires before handle_path
@@ -146,7 +159,7 @@ handle_path /changelogs/* {
 
 The `rewrite` directive has higher priority than `handle_path` in Caddy's directive order, so it intercepts the request before the app's `handle_path /myapp/*` can catch it.
 
-**3. Add `.md` to the dynamic cache matcher** so browsers don't cache stale changelogs:
+**4. Add `.md` to the dynamic cache matcher** so browsers don't cache stale changelogs:
 
 ```caddy
 @dynamic {
@@ -154,6 +167,8 @@ The `rewrite` directive has higher priority than `handle_path` in Caddy's direct
 }
 header @dynamic Cache-Control "no-cache, must-revalidate"
 ```
+
+**Why not individual file mounts?** Docker bind mounts point to inodes. When a tool replaces a file (new inode), the container keeps seeing the old content until restarted. The symlink + directory mount approach resolves the symlink at read time — edits are instantly visible, no restart needed.
 
 ### SPA Setup
 
