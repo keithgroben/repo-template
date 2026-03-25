@@ -114,3 +114,19 @@ Rules:
 - If the user describes a problem they don't know how to solve, put it in "Unsolved" — not "Up Next".
 - Keep "Up Next" in priority order. Don't renumber versions unless the user asks.
 - Commit roadmap changes with the code they relate to, or standalone if it's just a roadmap update.
+
+---
+
+## Version Release Checklist
+
+**MANDATORY: When the user approves/signs off on a version, perform ALL of these steps before moving on to the next feature:**
+
+1. Update the version constant in the SPA entry point (e.g. `app.js`, `package.json`, or wherever VERSION is defined)
+2. Update `CHANGELOG.md` with the new version entry (date, what was added/changed/fixed)
+3. Update `docs/roadmap.md` — move the version from "Up Next" to "Completed" with `[x]` checkboxes
+4. If applicable: update cache-bust param in `index.html` (increment `?v=` value)
+5. Commit all changes together in one commit
+6. Push to GitHub
+7. Deploy to production if applicable
+
+**Do NOT move on to the next feature until all steps are done. This is non-negotiable.**
