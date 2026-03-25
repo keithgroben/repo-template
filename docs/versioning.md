@@ -185,37 +185,96 @@ var shell = R7NavShell.init({
 case 'changelog': renderChangelog(); break;
 ```
 
-**4. Add `renderChangelog()` function** (ES5):
+**4. Add Changelog view** — Preact component (reference: `r7capp-atom-bomb/public/views/Changelog.js`):
 
 ```javascript
-function renderChangelog() {
-    var el = document.getElementById('view');
-    el.innerHTML =
-        '<div class="fade-up">' +
-            '<div class="mb-6">' +
-                '<h2 class="text-xl font-bold text-gray-900 tracking-tight">Release Notes</h2>' +
-                '<p class="text-sm text-gray-500 mt-1">Version history for [App Name]</p>' +
-            '</div>' +
-            '<div id="changelog-content">' +
-                '<div class="space-y-3">' +
-                    '<div class="h-4 bg-gray-200 rounded-lg animate-pulse" style="width:60%"></div>' +
-                    '<div class="h-4 bg-gray-200 rounded-lg animate-pulse" style="width:45%"></div>' +
-                '</div>' +
-            '</div>' +
-        '</div>';
+import { html, useState, useEffect } from '../lib/preact.js';
 
-    fetch('/CHANGELOG.md?v=' + Date.now())
-        .then(function(res) { return res.text(); })
-        .then(function(text) {
-            var releases = R7Changelog.parse(text);
-            document.getElementById('changelog-content').innerHTML = R7Changelog.renderHTML(releases);
-        })
-        .catch(function() {
-            document.getElementById('changelog-content').innerHTML =
-                '<div class="text-center py-12"><p class="text-sm text-gray-400">Could not load release notes.</p></div>';
-        });
+function parseChangelog(text) {
+    const releases = [];
+    let current = null;
+    let currentSection = null;
+    for (const line of text.split('\n')) {
+        const releaseMatch = line.match(/^## \[(.+?)\](?: [-\u2013\u2014] (.+))?/);
+        if (releaseMatch) {
+            current = { version: releaseMatch[1], date: (releaseMatch[2] || '').trim(), sections: {} };
+            releases.push(current);
+            currentSection = null;
+            continue;
+        }
+        const sectionMatch = line.match(/^### (.+)/);
+        if (sectionMatch && current) { currentSection = sectionMatch[1].trim(); current.sections[currentSection] = []; continue; }
+        const itemMatch = line.match(/^- (.+)/);
+        if (itemMatch && current && currentSection) { current.sections[currentSection].push(itemMatch[1].trim()); }
+    }
+    return releases.filter(r => r.version !== 'Unreleased' || Object.keys(r.sections).length > 0);
+}
+
+const SECTION_COLORS = {
+    'Added': 'bg-emerald-50 text-emerald-700', 'Changed': 'bg-blue-50 text-blue-700',
+    'Fixed': 'bg-amber-50 text-amber-700', 'Removed': 'bg-red-50 text-red-700'
+};
+
+export default function Changelog() {
+    const [releases, setReleases] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        fetch('./CHANGELOG.md?v=' + Date.now())
+            .then(r => r.text())
+            .then(text => { setReleases(parseChangelog(text)); setLoading(false); })
+            .catch(() => setLoading(false));
+    }, []);
+
+    if (loading) return html`<div class="animate-pulse h-4 w-48 bg-gray-200 rounded"></div>`;
+
+    return html`
+        <div class="fade-up">
+            <div class="mb-6">
+                <h2 class="text-xl font-bold text-gray-900">Release Notes</h2>
+                <p class="text-sm text-gray-500 mt-1">Version history for [App Name]</p>
+            </div>
+            <div class="space-y-4">
+                ${releases.map((r, i) => html`
+                    <div class="bg-white rounded-xl border border-gray-100 ${i === 0 ? 'shadow-sm' : ''} overflow-hidden">
+                        <div class="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <span class="text-base font-bold text-gray-900">v${r.version}</span>
+                                ${r.date && html`<span class="text-xs text-gray-400">${r.date}</span>`}
+                            </div>
+                            ${i === 0 && html`<span class="px-2 py-0.5 rounded-md text-[10px] font-semibold bg-emerald-50 text-emerald-700">Latest</span>`}
+                        </div>
+                        ${Object.entries(r.sections).length > 0 && html`
+                            <div class="px-5 py-4 space-y-4">
+                                ${Object.entries(r.sections).map(([section, items]) => html`
+                                    <div>
+                                        <span class="inline-flex px-2 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wider ${SECTION_COLORS[section] || 'bg-gray-100 text-gray-600'} mb-2">${section}</span>
+                                        <ul class="space-y-1.5 ml-1">
+                                            ${items.map(item => html`
+                                                <li class="flex items-center gap-2 text-sm text-gray-600">
+                                                    <span class="text-gray-300 text-[6px] shrink-0">${'\u25CF'}</span>
+                                                    <span>${item}</span>
+                                                </li>
+                                            `)}
+                                        </ul>
+                                    </div>
+                                `)}
+                            </div>
+                        `}
+                    </div>
+                `)}
+            </div>
+        </div>
+    `;
 }
 ```
+
+**Key conventions:**
+- `fetch('./CHANGELOG.md?v=' + Date.now())` for cache-busting
+- Empty `[Unreleased]` sections filtered out
+- Bullets vertically centered with `items-center` (not `items-start`)
+- Section color badges: Added (emerald), Changed (blue), Fixed (amber), Removed (red)
+- "Latest" badge on the first release card
 
 **5. Create `CHANGELOG.md`** at repo root (copy the template from this repo).
 
