@@ -113,20 +113,55 @@ We follow [Keep a Changelog](https://keepachangelog.com/en/1.1.0/):
 
 Every SPA app with a nav shell can display its changelog in-app:
 
-1. **`CHANGELOG.md`** lives at repo root (GitHub renders it natively)
-2. **`public/CHANGELOG.md`** is a copy of the root file (Caddy won't follow symlinks outside the served directory). Copy it at release time: `cp CHANGELOG.md public/CHANGELOG.md`
-3. **Nav shell version label** links to `#changelog`
-4. **`#changelog` route** fetches and renders CHANGELOG.md using the shared `changelog.js` parser
+1. **`CHANGELOG.md`** lives at repo root — single source of truth (GitHub renders it natively)
+2. **Caddy bind mount** maps the root file into the changelogs volume (e.g. `CHANGELOG.md:/var/www/changelogs/my-app.md:ro`)
+3. **Caddy rewrite** serves it at the app's path (e.g. `/admin/CHANGELOG.md` → `/changelogs/my-app.md`)
+4. **Nav shell version label** links to `#changelog`
+5. **`#changelog` route** fetches and renders `CHANGELOG.md` using the shared `changelog.js` parser
+
+**No `public/CHANGELOG.md` copy.** The Caddy rewrite serves the root file directly via bind mount. One file, no sync issues.
 
 This gives users three ways to read release notes: GitHub, the SPA sidebar version link, or the direct `#changelog` URL.
 
-### Setup Steps
+### Caddy Setup (LoopBack Pattern)
 
-**1. Add script tags** to your SPA's `<head>` (nav-shell and changelog are shared libs hosted on switchboard):
+**1. Add a bind mount** in `docker-compose.yml` for the root CHANGELOG.md:
+
+```yaml
+- /path/to/repo/CHANGELOG.md:/var/www/changelogs/my-app.md:ro
+```
+
+**2. Add rewrite + handler** in the Caddyfile (inside the `r7c.app` block, BEFORE `handle_path` blocks):
+
+```caddy
+# Changelogs — rewrite fires before handle_path
+@cl_myapp path /myapp/CHANGELOG.md
+rewrite @cl_myapp /changelogs/my-app.md
+
+handle_path /changelogs/* {
+    root * /var/www/changelogs
+    file_server
+}
+```
+
+The `rewrite` directive has higher priority than `handle_path` in Caddy's directive order, so it intercepts the request before the app's `handle_path /myapp/*` can catch it.
+
+**3. Add `.md` to the dynamic cache matcher** so browsers don't cache stale changelogs:
+
+```caddy
+@dynamic {
+    path *.html *.js *.md
+}
+header @dynamic Cache-Control "no-cache, must-revalidate"
+```
+
+### SPA Setup
+
+**1. Add script tags** to your SPA's `<head>` (nav-shell and changelog are shared libs):
 
 ```html
-<script src="https://switchboard.r7c.app/lib/nav-shell.js"></script>
-<script src="https://switchboard.r7c.app/lib/changelog.js"></script>
+<script src="https://r7c.app/switch/lib/nav-shell.js"></script>
+<script src="https://r7c.app/switch/lib/changelog.js"></script>
 ```
 
 **2. Pass `version` to `R7NavShell.init()`** — the version label becomes a clickable link to `#changelog`:
@@ -182,11 +217,7 @@ function renderChangelog() {
 }
 ```
 
-**5. Create `CHANGELOG.md`** at repo root (copy the template from this repo) and copy it to `public/CHANGELOG.md`:
-
-```bash
-cp CHANGELOG.md public/CHANGELOG.md
-```
+**5. Create `CHANGELOG.md`** at repo root (copy the template from this repo).
 
 **6. Create `package.json`** at repo root (if it doesn't exist):
 
