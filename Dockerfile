@@ -1,6 +1,12 @@
 # ─── Build stage: Vite SPA ────────────────────────────────
 FROM node:22-alpine AS build
 
+# Vite inlines VITE_* vars at build time — pass them as build args.
+# docker-compose.yml maps these from .env automatically.
+ARG VITE_SUPABASE_URL
+ARG VITE_SUPABASE_ANON_KEY
+ARG VITE_BASE_PATH=/
+
 WORKDIR /app
 COPY package.json package-lock.json* ./
 RUN npm ci
