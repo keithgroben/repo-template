@@ -1,5 +1,5 @@
 # ─── Build stage: Vite SPA ────────────────────────────────
-FROM node:20-alpine AS build
+FROM node:22-alpine AS build
 
 WORKDIR /app
 COPY package.json package-lock.json* ./
@@ -9,15 +9,16 @@ COPY src/ ./src/
 RUN npm run build
 
 # ─── Production stage: Hono API server ────────────────────
-FROM node:20-alpine
+FROM node:22-alpine
 
 WORKDIR /app
+
 COPY package.json package-lock.json* ./
-RUN npm ci --omit=dev
-COPY server/ ./server/
+RUN npm ci --omit=dev && chown -R node:node /app
 
-# Copy built SPA for Caddy to serve (mounted as volume in docker-compose)
-COPY --from=build /app/dist ./dist/
+COPY --chown=node:node server/ ./server/
+COPY --from=build --chown=node:node /app/dist ./dist/
 
-EXPOSE 3001
+USER node
+EXPOSE 3000
 CMD ["node", "server/index.js"]

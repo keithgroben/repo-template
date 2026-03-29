@@ -6,13 +6,13 @@
 
 **Frontend**: Preact + JSX · Vite · Tailwind CSS
 **Backend**: Hono API · Supabase (Postgres + Auth + RLS)
-**Deploy**: Docker Compose · Caddy (static files + reverse proxy)
+**Deploy**: Docker container on r7net · Global Caddy handles TLS + routing
 
 ## Quick Start
 
 ### Prerequisites
 
-- Node.js 20+
+- Node.js 22+
 - Docker + Docker Compose (for deployment)
 
 ### Development
@@ -24,14 +24,14 @@ npm install
 # Copy environment template and fill in credentials
 cp .env.example .env
 
-# Start Hono API server (port 3001)
+# Start Hono API server (port 3000)
 npm run dev
 
-# In another terminal: start Vite dev server (port 5173)
+# In another terminal: start Vite dev server (port 5173, hot reload)
 npm run dev:client
 ```
 
-Vite proxies `/api/*` and `/webhook/*` to Hono during development.
+Vite proxies `/api/*` and `/webhook/*` to Hono during development. Edit any `.jsx` file and the browser updates instantly via HMR.
 
 ### Production
 
@@ -39,9 +39,25 @@ Vite proxies `/api/*` and `/webhook/*` to Hono during development.
 # Build the SPA
 npm run build
 
-# Start with Docker Compose
-docker compose up -d
+# Build and start the container on r7net
+docker compose up -d --build
 ```
+
+The container runs Hono on port 3000, serving both the built SPA (`dist/`) and API routes. Global Caddy on the host routes traffic to the container by path prefix (e.g., `handle_path /appname/*`).
+
+**There is no per-app Caddyfile.** TLS, routing, and path-prefix stripping are handled by the global Caddy instance on the server.
+
+### Deployment Pattern
+
+```
+Browser → r7c.app/appname/ → Global Caddy (strips /appname/) → container:3000
+                                                                  ├── /assets/*  → dist/ (Vite build)
+                                                                  ├── /api/*     → Hono routes
+                                                                  ├── /health    → health check
+                                                                  └── /*         → dist/index.html (SPA fallback)
+```
+
+Key: set `VITE_BASE_PATH=/appname/` in `.env` so Vite generates correct asset URLs that work with Caddy's path stripping.
 
 ## Docs
 
@@ -56,8 +72,6 @@ docker compose up -d
 | `docs/decisions.md` | Lessons learned | No |
 | `docs/roadmap.md` | Feature tracking | No |
 | `docs/secrets.md` | Secret management and rotation | No |
-| `docs/migration-checklist.md` | Per-app migration steps | No |
-| `docs/migration-waves.md` | Wave order, dependencies, blockers | No |
 
 ## Template Sync
 

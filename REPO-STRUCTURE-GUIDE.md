@@ -7,9 +7,8 @@
 ├── CLAUDE.md                    ← App-specific context for Claude Code (schema, APIs, conventions)
 ├── .env.example                 ← Template environment variables (copy to .env, fill in)
 ├── .gitignore                   ← node_modules, .env, dist/
-├── Dockerfile                   ← Hono API server container
-├── docker-compose.yml           ← Multi-service deployment (Caddy + API + optional Postgres)
-├── Caddyfile                    ← Caddy config (static files + API reverse proxy)
+├── Dockerfile                   ← Multi-stage build: Vite SPA + Hono server, runs as node user
+├── docker-compose.yml           ← Single service on r7net (global Caddy handles routing)
 ├── package.json                 ← Dependencies + scripts (dev, build, start)
 ├── vite.config.js               ← Vite + Preact preset + Tailwind
 ├── index.html                   ← Vite HTML entry point
@@ -99,7 +98,7 @@ If the frontend is a mobile app (React Native, etc.):
 | Database | Supabase (Postgres) | Managed Postgres, Auth, RLS, real-time |
 | Cron | node-cron | Scheduled jobs, replaces external cron services |
 | Email | Resend (via API) | Transactional email from Hono routes |
-| Deploy | Docker Compose | Caddy + Hono API containers |
+| Deploy | Docker Compose | Single Hono container on r7net, global Caddy routes to it |
 
 ---
 
@@ -202,14 +201,39 @@ render(<App />, document.getElementById('app'));
 ## Dev Workflow
 
 ```bash
-# Terminal 1: Vite dev server (frontend on :5173, proxies /api/* to Hono)
-npm run dev:client
-
-# Terminal 2: Hono API server (backend on :3001)
+# Terminal 1: Hono API server (backend on :3000)
 npm run dev
+
+# Terminal 2: Vite dev server (frontend on :5173, hot reload)
+npm run dev:client
 ```
 
-Vite's proxy config forwards `/api/*`, `/webhook/*`, and `/health` to the Hono server automatically during development. In production, Caddy handles this routing.
+Vite's proxy config forwards `/api/*`, `/webhook/*`, and `/health` to the Hono server automatically during development. In production, Hono serves the built SPA from `dist/` and handles API routes — global Caddy routes traffic to the container.
+
+## Production Deploy
+
+```bash
+npm run build                     # Vite builds SPA to dist/
+docker compose up -d --build      # Builds image + starts container on r7net
+```
+
+- Container runs Hono on port 3000 (serves dist/ + API)
+- Global Caddy routes `r7c.app/<appname>/*` to the container
+- Caddy strips the path prefix — Hono receives `/`, not `/<appname>/`
+- Set `VITE_BASE_PATH=/<appname>/` so asset URLs work through Caddy
+- No per-app Caddyfile — TLS and routing are handled globally
+
+## Role-Based Access
+
+Admin and client views live in the same app, same URL. Auth determines what the user sees:
+
+```
+r7c.app/appname/ → Supabase auth checks role
+  → owner/admin → sees all data, admin controls, management views
+  → client      → sees only their assigned data, limited views
+```
+
+Do NOT create separate `/admin/` URL paths. Use the auth middleware's `isAdmin` flag to conditionally render views and restrict API routes.
 
 ---
 
