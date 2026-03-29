@@ -1,8 +1,8 @@
 // Smoke test — verifies the Hono API is responding correctly.
 // Usage: npm run smoke (or: node scripts/smoke-test.js)
-// Expects the API to be running on the port specified in .env or default 3001.
+// Expects the API to be running on the port specified in .env or default 3000.
 
-const BASE = process.env.API_URL || `http://localhost:${process.env.PORT || 3001}`;
+const BASE = process.env.API_URL || `http://localhost:${process.env.PORT || 3000}`;
 let passed = 0;
 let failed = 0;
 

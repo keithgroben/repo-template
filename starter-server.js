@@ -1,15 +1,23 @@
 // ─── Hono API Starter ────────────────────────────────────
 // Copy this into server/index.js and customize for your app.
 // Run: node server/index.js (or npm start)
+//
+// In production, this server does TWO jobs:
+// 1. Serves the Vite-built SPA from dist/
+// 2. Handles /api/* and /webhook/* routes
+//
+// Global Caddy on r7net routes traffic to this container.
+// This server does NOT handle TLS — Caddy does that.
 
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { logger } from 'hono/logger';
+import { serveStatic } from '@hono/node-server/serve-static';
 import { serve } from '@hono/node-server';
 import { createClient } from '@supabase/supabase-js';
 
 // ─── Config ──────────────────────────────────────────────
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3000;
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY;
@@ -29,7 +37,8 @@ app.use('*', cors({
 
 // ─── Auth Middleware ─────────────────────────────────────
 // Validates Supabase JWT from Authorization header.
-// Attaches authenticated user to c.get('user').
+// Attaches authenticated user to c.get('user') and a
+// user-scoped Supabase client to c.get('sbUser').
 //
 // Usage: app.use('/api/*', authMiddleware);
 async function authMiddleware(c, next) {
@@ -50,8 +59,17 @@ async function authMiddleware(c, next) {
         return c.json({ error: 'Invalid or expired token' }, 401);
     }
 
+    // Fetch profile for role-based access
+    const { data: profile } = await sbAdmin
+        .from('profiles')
+        .select('id, role, name')
+        .eq('id', user.id)
+        .single();
+
     c.set('user', user);
+    c.set('profile', profile);
     c.set('sbUser', sbUser); // RLS-scoped client for this request
+    c.set('isAdmin', profile?.role === 'owner' || profile?.role === 'admin');
     await next();
 }
 
@@ -69,12 +87,16 @@ async function pinAuthMiddleware(c, next) {
 }
 
 // ─── Health Check ────────────────────────────────────────
-app.get('/health', (c) => c.json({ status: 'ok', timestamp: new Date().toISOString() }));
+app.get('/health', (c) => c.json({
+    status: 'ok',
+    app: 'app-name',  // ← Change to your app name
+    timestamp: new Date().toISOString(),
+}));
 
 // ─── Protected API Routes ────────────────────────────────
 // Pick one auth middleware and apply it:
-// app.use('/api/*', authMiddleware);      // Supabase JWT
-// app.use('/api/*', pinAuthMiddleware);   // Shared PIN
+app.use('/api/*', authMiddleware);
+// app.use('/api/*', pinAuthMiddleware);   // Shared PIN (internal tools)
 
 // Example: List items
 app.get('/api/items', async (c) => {
@@ -142,50 +164,6 @@ app.delete('/api/items/:id', async (c) => {
 //     return c.json({ ok: true });
 // });
 
-// ─── Email Sending (Resend) ─────────────────────────────
-//
-// async function sendEmail({ to, subject, html }) {
-//     const res = await fetch('https://api.resend.com/emails', {
-//         method: 'POST',
-//         headers: {
-//             'Authorization': `Bearer ${process.env.RESEND_API_KEY}`,
-//             'Content-Type': 'application/json',
-//         },
-//         body: JSON.stringify({
-//             from: process.env.RESEND_FROM || 'noreply@example.com',
-//             to, subject, html,
-//         }),
-//     });
-//     if (!res.ok) {
-//         const err = await res.json();
-//         throw new Error(`Resend error: ${err.message}`);
-//     }
-//     return res.json();
-// }
-
-// ─── Multi-Step Transactions ────────────────────────────
-// For operations that need to query, decide, then update.
-//
-// app.post('/api/process-order', async (c) => {
-//     const { orderId } = await c.req.json();
-//
-//     const { data: order } = await sbAdmin
-//         .from('orders').select('*').eq('id', orderId).single();
-//
-//     if (!order) return c.json({ error: 'Not found' }, 404);
-//
-//     const approved = order.total < 1000;
-//     const { data: updated } = await sbAdmin
-//         .from('orders')
-//         .update({ status: approved ? 'approved' : 'review', processed_at: new Date().toISOString() })
-//         .eq('id', orderId).select().single();
-//
-//     return c.json(updated);
-// });
-//
-// For truly atomic operations, use a PG function:
-// const { data } = await sbAdmin.rpc('process_order', { p_order_id: orderId });
-
 // ─── Scheduled Jobs ─────────────────────────────────────
 // npm install node-cron
 //
@@ -195,19 +173,6 @@ app.delete('/api/items/:id', async (c) => {
 //     console.log('[cron] Friday job running');
 //     try { /* your logic */ } catch (err) { console.error('[cron] Failed:', err.message); }
 // });
-//
-// cron.schedule('* * * * *', async () => {  // Polling pattern (every 60s)
-//     const { data: jobs } = await sbAdmin
-//         .from('job_queue').select('*').eq('status', 'pending').limit(5);
-//     for (const job of (jobs || [])) {
-//         try {
-//             // Process job...
-//             await sbAdmin.from('job_queue').update({ status: 'done' }).eq('id', job.id);
-//         } catch (err) {
-//             await sbAdmin.from('job_queue').update({ status: 'failed', error: err.message }).eq('id', job.id);
-//         }
-//     }
-// });
 
 // ─── Error Handler ───────────────────────────────────────
 app.onError((err, c) => {
@@ -215,7 +180,16 @@ app.onError((err, c) => {
     return c.json({ error: 'Internal server error' }, 500);
 });
 
-// ─── 404 Handler ─────────────────────────────────────────
+// ─── Static Files (Vite build) ───────────────────────────
+// In production, Hono serves the built SPA from dist/.
+// Caddy's handle_path strips the app's path prefix (e.g., /porkchop/),
+// so Hono receives clean paths (e.g., /assets/index.js).
+app.use('/assets/*', serveStatic({ root: './dist' }));
+
+// SPA fallback — any non-API, non-asset request gets index.html
+// This enables client-side hash routing (#/home, #/settings, etc.)
+app.get('*', serveStatic({ root: './dist', path: 'index.html' }));
+
 app.notFound((c) => c.json({ error: 'Not found' }, 404));
 
 // ─── Start Server ────────────────────────────────────────

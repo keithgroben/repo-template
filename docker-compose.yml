@@ -1,61 +1,38 @@
 # ─── Docker Compose Template ──────────────────────────────
-# Customize per app. Remove services you don't need.
+# Each app runs as a single Hono container on r7net.
+# Global Caddy (on the host) handles TLS, routing, and path-prefix stripping.
+# Do NOT add a Caddy service here — there is no per-app Caddyfile.
 #
 # Usage:
-#   docker compose up -d          # Start all services
-#   docker compose logs -f api    # Tail API logs
-#   docker compose down           # Stop all services
+#   docker compose up -d            # Start the container
+#   docker compose logs -f app      # Tail logs
+#   docker compose down             # Stop the container
+#   docker compose up -d --build    # Rebuild and restart
 
 services:
-  # ─── SPA (Caddy static file server + reverse proxy) ────
-  caddy:
-    image: caddy:2-alpine
-    restart: unless-stopped
-    ports:
-      - "${CADDY_PORT:-8080}:80"
-      - "${CADDY_TLS_PORT:-8443}:443"
-    volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile
-      - ./dist:/srv/dist:ro
-      - caddy_data:/data
-      - caddy_config:/config
-    depends_on:
-      - api
-
-  # ─── Hono API Server ───────────────────────────────────
-  api:
+  app:
     build:
       context: .
       dockerfile: Dockerfile
+    container_name: app-name          # ← Change to your app name (e.g., porkchop, cb-forms)
     restart: unless-stopped
-    ports:
-      - "${API_PORT:-3001}:3001"
     env_file:
       - .env
     environment:
       - NODE_ENV=production
-      - PORT=3001
+      - PORT=3000
+    networks:
+      - r7net
+    deploy:
+      resources:
+        limits:
+          memory: 256M
     healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://localhost:3001/health"]
+      test: ["CMD", "wget", "-qO-", "http://localhost:3000/health"]
       interval: 30s
       timeout: 5s
       retries: 3
 
-  # ─── PostgreSQL (if self-hosted, skip if using Supabase cloud) ─
-  # postgres:
-  #   image: postgres:16-alpine
-  #   restart: unless-stopped
-  #   ports:
-  #     - "${PG_PORT:-5432}:5432"
-  #   environment:
-  #     POSTGRES_DB: ${PG_DATABASE:-app}
-  #     POSTGRES_USER: ${PG_USER:-postgres}
-  #     POSTGRES_PASSWORD: ${PG_PASSWORD}
-  #   volumes:
-  #     - pg_data:/var/lib/postgresql/data
-  #     - ./supabase:/docker-entrypoint-initdb.d:ro
-
-volumes:
-  caddy_data:
-  caddy_config:
-  # pg_data:
+networks:
+  r7net:
+    external: true
