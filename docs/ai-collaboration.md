@@ -125,6 +125,8 @@ A Haiku task that requires judgment is a poorly written spec, not a Haiku limita
 
 Every `vX.Y.0` feature must be written so Haiku can implement the entire thing in one session without needing to ask questions. That's the spec quality bar.
 
+**Before writing a spec, read `docs/spec-writing-guide.md`.** It explains every field, shows good vs. bad examples using this stack, and has a pre-handoff checklist.
+
 ```markdown
 ### vX.Y.0 — Feature Name
 
