@@ -1,6 +1,8 @@
 # CLAUDE.md — App Context for Claude Code
 
 > This file gives Claude Code the app-specific context it needs to work effectively. Updated per-project. Read at session start alongside PROJECT_PROTOCOL.md and docs/overview.md.
+>
+> **Multi-model sessions**: Read `AI_HANDOFF.md` before this file. Then read `docs/ai-collaboration.md` to understand the Haiku → Sonnet → Opus pipeline and your role in it.
 
 ---
 

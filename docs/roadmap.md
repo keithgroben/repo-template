@@ -7,24 +7,76 @@
 
 ## Up Next
 
-Versioned features queued for development, in priority order.
+Versioned features queued for development, in priority order. Keep 15 features planned ahead.
+See `docs/ai-collaboration.md` for the Haiku → Sonnet → Human pipeline these feed into.
 
-### vX.Y.0 — [Version Name]
+---
 
-- [ ] [Feature or deliverable]
-- [ ] [Feature or deliverable]
+### vX.Y.0 — [Feature Name]
 
-### vX.Z.0 — [Version Name]
+**Goal**: [One sentence — what ships and what it enables for the user]
+**Risk**: Low / Medium / High — [reason]
+**Status**: `[pending]`
+**Pass Count**: 0
 
-- [ ] [Feature or deliverable]
+#### Implementation Brief
+*Haiku implements the entire feature in one session. All decisions must be resolved here before Haiku starts.*
+
+- **Files**: `src/path/to/file.jsx`, `src/lib/api.js`
+- **Pattern**: follow `src/components/Example.jsx` — [what specifically to copy]
+- **Data**: [field names, API response shape, DB columns touched]
+- **Behavior**: [step-by-step — what renders, what API returns, what saves]
+- **Do NOT**: [guard rails — common wrong turns based on the patterns]
+
+#### Haiku Checklist
+*Haiku works through this list in one session — these are not separate handoffs.*
+
+- [ ] [Thing to build]
+- [ ] [Thing to build]
+- [ ] [Thing to build]
+
+#### Sonnet Review Checklist
+*Sonnet patches and refines — does not rewrite. If rewriting, the brief was underspecified.*
+
+- [ ] [Specific thing to verify]
+- [ ] [Edge case to test]
+- [ ] Error handling: [what happens when X fails]
+
+#### Human Verify
+- [ ] [Action in browser] → [expected result]
+- [ ] [Action in browser] → [expected result]
+
+---
+
+### vX.Z.0 — [Feature Name]
+
+**Goal**: [One sentence]
+**Risk**: Low / Medium / High — [reason]
+**Status**: `[pending]`
+**Pass Count**: 0
+
+#### Implementation Brief
+- **Files**: `src/path/to/file.jsx`
+- **Pattern**: follow `src/components/Example.jsx`
+- **Behavior**: [exact behavior]
+- **Do NOT**: [guard rail]
+
+#### Haiku Checklist
+- [ ] [Thing to build]
+
+#### Sonnet Review Checklist
+- [ ] [Check]
+
+#### Human Verify
+- [ ] [Action] → [result]
 
 ---
 
 ## Bug Fixes
 
-Known bugs to investigate and fix. No version number — fix when able.
+Known bugs to investigate and fix. Use `vX.Y.Z` (Z > 0) versioning. These typically go straight to Sonnet — skip Haiku unless it's a clear code change.
 
-- [Description of bug, how to reproduce, impact]
+- `vX.Y.1` — [Description of bug, how to reproduce, impact]
 
 ### Standard: Bug Report Button Placement
 All apps must follow the LoopBack pattern: version text on left, "Report a Bug" text link on right. Placed in the app's footer area (sidebar footer for desktop-first apps, bottom tab bar footer for mobile-first apps). No floating FAB buttons. Modal must be closeable on mobile (explicit close button + backdrop tap).

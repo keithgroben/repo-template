@@ -13,16 +13,20 @@ This document governs every Claude Code session on this repo. Read it first. Fol
 At the start of every session, read the following files in this order:
 
 1. `PROJECT_PROTOCOL.md` (this file)
-2. `CLAUDE.md` — app-specific context, schema, APIs, migration status
-3. `docs/overview.md` — what this app is and why it exists
-4. `docs/decisions.md` — lessons learned, problems solved, things that don't work
-5. Latest file in `docs/handoffs/` — where we left off last session
+2. `AI_HANDOFF.md` — **read this first before anything else**. Current feature, status, and exactly what to do next.
+3. `git log --oneline -10` — recent history
+4. `git diff HEAD~1` — last committed change
+5. `CLAUDE.md` — app-specific context, schema, APIs, migration status
+6. `docs/overview.md` — what this app is and why it exists
+7. `docs/decisions.md` — lessons learned, problems solved, things that don't work
 
 **For migration sessions**, also read:
-6. `docs/migration-checklist.md` — step-by-step process
-7. `docs/migration-waves.md` — wave order, dependencies, blockers
+8. `docs/migration-checklist.md` — step-by-step process
+9. `docs/migration-waves.md` — wave order, dependencies, blockers
 
-Do not begin work until all applicable files are read.
+Do not begin work until `AI_HANDOFF.md` has been read.
+
+> Multiple models may be running concurrently in separate terminals on the same branch. See `docs/ai-collaboration.md` for the full pipeline.
 
 ---
 
@@ -118,10 +122,23 @@ The standard Phase 0–3 gates apply, with these migration-specific additions:
 
 ---
 
+## Session End
+
+Before ending any session:
+
+1. Update `AI_HANDOFF.md` — fill every field. Set `Next Model` and `What To Do Next` clearly.
+2. Commit all changes including `AI_HANDOFF.md`
+3. Push to branch
+
+The next model — whether Haiku, Sonnet, or Opus — will read `AI_HANDOFF.md` cold. Write it accordingly.
+
+---
+
 ## Rules
 
 - Never modify files outside the current task scope without explicit approval.
 - If you're about to make a change that touches more than 3 files, pause and confirm.
 - When in doubt, ask. Don't guess.
 - Write decisions and lessons learned to `docs/decisions.md` when we solve a hard problem.
-- On session end, write a handoff note to `docs/handoffs/` with today's date.
+- Never start a session without reading `AI_HANDOFF.md` first.
+- Never end a session without updating `AI_HANDOFF.md` and pushing.
