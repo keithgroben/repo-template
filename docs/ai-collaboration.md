@@ -9,8 +9,8 @@
 | Model | Role | Terminal |
 |-------|------|----------|
 | Cursor + Sonnet 4.6 | Roadmap planning, architecture, feature spec writing | Cursor (local) |
-| Claude Haiku 4.5 | Feature implementation — bite-sized atomic tasks | Terminal 1 |
-| Claude Sonnet 4.6 | Code review, iteration with human, verification | Terminal 2 |
+| Claude Haiku 4.5 | Full feature implementation — executes the entire feature spec | Terminal 1 |
+| Claude Sonnet 4.6 | Code review, fixes, iteration with human | Terminal 2 |
 | Claude Opus 4.6 | Escalation only — called when Sonnet cannot resolve | Terminal 3 |
 
 ---
@@ -49,19 +49,27 @@ The next model will not ask you what happened. It will read the file.
 
 ## The Pipeline
 
+Think of this as a human dev team. Haiku is the junior developer who implements the full feature. Sonnet is the senior who reviews the PR and works with the human to get it to green. Opus is the architect you call when something is broken at a level the senior can't resolve alone.
+
 ### Normal Flow
 
 ```
-Cursor + Sonnet → write roadmap (15 features ahead, Haiku-sized tasks)
+Cursor + Sonnet → write full feature spec (roadmap, 15 features planned ahead)
   ↓
-Haiku → implements one atomic task
+Haiku → implements the ENTIRE feature in one session (all tasks, all files)
   ↓
-Sonnet → reviews, iterates with human (max 5 passes)
+Haiku → commits, pushes, updates AI_HANDOFF.md
+  ↓
+Sonnet → reviews full output, fixes what Haiku got wrong, iterates with human (max 5 passes)
   ↓
 Human → verifies in browser
   ↓
-Done → next task
+Done → Haiku picks up next feature
 ```
+
+**Haiku implements the whole feature.** The tasks listed under a feature are Haiku's internal checklist — not separate sessions. Haiku does not hand off mid-feature unless it's genuinely stuck and cannot proceed without a decision.
+
+**Sonnet does not re-implement.** Sonnet reviews, patches, and refines. If Sonnet finds itself rewriting large chunks from scratch, the feature spec was underspecified — flag it and fix the spec.
 
 ### Pass Rules (Sonnet Review Phase)
 
@@ -98,45 +106,58 @@ Roadmap should have 15 `vX.Y.0` features planned ahead at all times. Cursor + So
 
 ## Haiku Rules
 
-Haiku works well when tasks are:
+Haiku implements full features. The goal is to have Haiku do as much of the work as possible — that's the whole compute-saving point of this pipeline.
 
-- Scoped to **1–3 files maximum**
-- Written with **explicit file paths** to touch (`src/components/Foo.jsx`, not "the component")
-- Written with **a pattern to follow** — e.g. "copy the pattern from `src/components/Badge.jsx`"
-- Written with **exact expected output** — what the UI shows, what the API returns, what the function does
-- Free of architecture decisions — Haiku executes, it does not design
+A feature spec is written well enough for Haiku when:
 
-If a task requires architecture decisions, Cursor + Sonnet must resolve them in the roadmap before Haiku touches code. A Haiku task that requires judgment is a poorly written task.
+- **Every file is named explicitly** — `src/components/Foo.jsx`, not "the component"
+- **Every pattern is referenced** — "follow the pattern in `src/components/Badge.jsx`", not "make it consistent"
+- **Every output is described exactly** — what the user sees, what the API returns, what gets written to the DB
+- **No architecture decisions are left open** — Haiku executes, it does not design. If a decision is unresolved, Cursor + Sonnet resolves it in the spec before Haiku touches code.
+
+**When Haiku gets stuck**: if Haiku hits something that requires a judgment call not covered by the spec, it should stop, document what it built so far, note the exact question in `AI_HANDOFF.md → Blocker`, and hand off to Sonnet. This is not a failure — it means the spec had a gap that Cursor + Sonnet needs to fill for next time.
+
+A Haiku task that requires judgment is a poorly written spec, not a Haiku limitation.
 
 ---
 
 ## Roadmap Task Format (Haiku-Optimized)
 
-Every `vX.Y.0` feature in `docs/roadmap.md` must use this format:
+Every `vX.Y.0` feature must be written so Haiku can implement the entire thing in one session without needing to ask questions. That's the spec quality bar.
 
 ```markdown
 ### vX.Y.0 — Feature Name
 
-**Goal**: One sentence describing what ships.
+**Goal**: One sentence — what ships and what it enables for the user.
 **Risk**: Low / Medium / High — reason
 **Status**: `[pending]` → `[haiku]` → `[sonnet-review]` → `[human-verify]` → `[done]` / `[escalated]`
 **Pass Count**: 0
 
-#### Haiku Tasks
-Atomic. Each task = one focused session. Haiku should not need to read beyond CLAUDE.md to execute.
+#### Implementation Brief (for Haiku)
+Everything Haiku needs. No ambiguity. No architecture decisions left open.
 
-- [ ] **H1** — [Verb phrase]. Files: `path/to/file`. Pattern: `path/to/example`. Output: [exact observable result].
-- [ ] **H2** — [Verb phrase]. Files: `path/to/file`. No new patterns — follows H1 output.
+- **Files to create or modify**: list every file by path
+- **Pattern to follow**: `path/to/existing/example.jsx` — [what to copy from it]
+- **Data**: [what goes in, what comes out — field names, types, API response shape]
+- **Behavior**: [exact UI behavior or API behavior, step by step]
+- **Do NOT**: [anything Haiku might do wrong based on the pattern — guard rails]
+
+#### Haiku Checklist
+Internal checklist Haiku works through in one session. Not separate handoffs.
+
+- [ ] [Specific thing to build — file, function, or UI element]
+- [ ] [Specific thing to build]
+- [ ] [Specific thing to build]
 
 #### Sonnet Review Checklist
-What Sonnet specifically verifies for this feature.
+What Sonnet checks after Haiku hands off. Sonnet fixes, does not rewrite.
 
-- [ ] [Specific check]
-- [ ] [Edge case]
+- [ ] [Specific thing to verify]
+- [ ] [Edge case or error path]
 - [ ] Error handling: [what should happen when X fails]
 
 #### Human Verify
-What to test in the browser or via curl. Success criteria are binary (works / doesn't work).
+Binary pass/fail. Works in browser or doesn't.
 
 - [ ] [Action] → [Expected result]
 - [ ] [Action] → [Expected result]

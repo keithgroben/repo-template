@@ -14,18 +14,30 @@ See `docs/ai-collaboration.md` for the Haiku → Sonnet → Human pipeline these
 
 ### vX.Y.0 — [Feature Name]
 
-**Goal**: [One sentence — what ships and what it enables]
+**Goal**: [One sentence — what ships and what it enables for the user]
 **Risk**: Low / Medium / High — [reason]
 **Status**: `[pending]`
 **Pass Count**: 0
 
-#### Haiku Tasks
-*Atomic. 1–3 files each. Pattern references included. No architecture decisions required.*
+#### Implementation Brief
+*Haiku implements the entire feature in one session. All decisions must be resolved here before Haiku starts.*
 
-- [ ] **H1** — [Verb phrase]. Files: `src/path/to/file.jsx`. Pattern: `src/components/Example.jsx`. Output: [exact observable result].
-- [ ] **H2** — [Verb phrase]. Files: `src/path/to/file.jsx`. Follows H1. Output: [exact observable result].
+- **Files**: `src/path/to/file.jsx`, `src/lib/api.js`
+- **Pattern**: follow `src/components/Example.jsx` — [what specifically to copy]
+- **Data**: [field names, API response shape, DB columns touched]
+- **Behavior**: [step-by-step — what renders, what API returns, what saves]
+- **Do NOT**: [guard rails — common wrong turns based on the patterns]
+
+#### Haiku Checklist
+*Haiku works through this list in one session — these are not separate handoffs.*
+
+- [ ] [Thing to build]
+- [ ] [Thing to build]
+- [ ] [Thing to build]
 
 #### Sonnet Review Checklist
+*Sonnet patches and refines — does not rewrite. If rewriting, the brief was underspecified.*
+
 - [ ] [Specific thing to verify]
 - [ ] [Edge case to test]
 - [ ] Error handling: [what happens when X fails]
@@ -43,8 +55,14 @@ See `docs/ai-collaboration.md` for the Haiku → Sonnet → Human pipeline these
 **Status**: `[pending]`
 **Pass Count**: 0
 
-#### Haiku Tasks
-- [ ] **H1** — [Verb phrase]. Files: `src/path/to/file.jsx`. Pattern: `src/components/Example.jsx`. Output: [exact result].
+#### Implementation Brief
+- **Files**: `src/path/to/file.jsx`
+- **Pattern**: follow `src/components/Example.jsx`
+- **Behavior**: [exact behavior]
+- **Do NOT**: [guard rail]
+
+#### Haiku Checklist
+- [ ] [Thing to build]
 
 #### Sonnet Review Checklist
 - [ ] [Check]
