@@ -102,6 +102,20 @@ After Opus resolves (or decides it can't): human chooses to either ship the fix 
 
 Roadmap should have 15 `vX.Y.0` features planned ahead at all times. Cursor + Sonnet keeps this list filled.
 
+### Lead Assignment
+
+Every roadmap feature gets a `**Lead**` tag. This tells which model owns the implementation.
+
+| Tag | Model | Use for |
+|-----|-------|---------|
+| `[Haiku]` | Claude Haiku | New, isolated, self-contained features where scaffolding and patterns exist |
+| `[Sonnet]` | Claude Sonnet | Existing file edits, multi-file integrations, wiring, code review, complex debugging |
+| `[Opus]` | Claude Opus | Architectural decisions, cross-system design, when Sonnet is stuck |
+| `[Me]` | Operator (Keith) | Business decisions, design approvals, real-world testing, manual triggers |
+| `[Together]` | Me + Sonnet | Diagnosis sessions, debugging requiring live system state + code changes together |
+
+The Lead tag goes on every `vX.Y.0` entry in `docs/roadmap.md`. Bug fixes (`vX.Y.Z`, Z > 0) default to `[Sonnet]` unless noted otherwise.
+
 ---
 
 ## Haiku Rules
@@ -130,6 +144,7 @@ Every `vX.Y.0` feature must be written so Haiku can implement the entire thing i
 ```markdown
 ### vX.Y.0 — Feature Name
 
+**Lead**: `[Haiku]` / `[Sonnet]` / `[Opus]` / `[Me]` / `[Together]`
 **Goal**: One sentence — what ships and what it enables for the user.
 **Risk**: Low / Medium / High — reason
 **Status**: `[pending]` → `[haiku]` → `[sonnet-review]` → `[human-verify]` → `[done]` / `[escalated]`

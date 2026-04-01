@@ -14,6 +14,7 @@ See `docs/ai-collaboration.md` for the Haiku → Sonnet → Human pipeline these
 
 ### vX.Y.0 — [Feature Name]
 
+**Lead**: `[Haiku]` / `[Sonnet]` / `[Opus]` / `[Me]` / `[Together]`
 **Goal**: [One sentence — what ships and what it enables for the user]
 **Risk**: Low / Medium / High — [reason]
 **Status**: `[pending]`
@@ -50,6 +51,7 @@ See `docs/ai-collaboration.md` for the Haiku → Sonnet → Human pipeline these
 
 ### vX.Z.0 — [Feature Name]
 
+**Lead**: `[Haiku]`
 **Goal**: [One sentence]
 **Risk**: Low / Medium / High — [reason]
 **Status**: `[pending]`
@@ -95,9 +97,10 @@ Problems without a clear solution yet. Describe the problem, not a feature spec.
 
 Lower-priority items not yet scheduled into a version.
 
-- [Feature or idea] `[ME]`
-- [Feature or idea] `[CLAUDE]`
-- [Feature or idea] `[TOGETHER]`
+- [Feature or idea] `[Me]`
+- [Feature or idea] `[Haiku]`
+- [Feature or idea] `[Sonnet]`
+- [Feature or idea] `[Together]`
 
 ---
 
