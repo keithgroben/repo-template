@@ -23,8 +23,9 @@ Opinionated full-stack app template for building internal tools and web apps wit
 2. **Fill in** `CLAUDE.md` — app name, DB schema, API routes, known gotchas
 3. **Fill in** `docs/overview.md` — what the app does and why
 4. **Rename** `README-TEMPLATE.md` → `README.md` (replace this file)
-5. **Update** `.github/sync-config.json` with your downstream repos
-6. **Set** `REPO_SYNC_TOKEN` in GitHub Actions secrets (PAT with repo write access)
+5. **Rename** `CHANGELOG-TEMPLATE.md` → `CHANGELOG.md` (replace this file)
+6. **Update** `.github/sync-config.json` with your downstream repos
+7. **Set** `REPO_SYNC_TOKEN` in GitHub Actions secrets (PAT with repo write access)
 
 ## Start with an AI agent
 
@@ -69,6 +70,7 @@ If you're using Cursor, add `PROJECT_PROTOCOL.md` as a [Cursor Rule](https://doc
 | `PROJECT_PROTOCOL.md` | Claude Code session rules and phase gates | Yes |
 | `CLAUDE.md` | App-specific context — fill in per project | No |
 | `README-TEMPLATE.md` | README starter for app repos | No |
+| `CHANGELOG-TEMPLATE.md` | Changelog starter for app repos | No |
 | `docs/overview.md` | App architecture and stack decisions | No |
 | `docs/ai-collaboration.md` | Multi-model AI pipeline (Haiku → Sonnet → Opus) | No |
 | `docs/architecture-patterns.md` | Hono + SPA coding patterns | Yes |
