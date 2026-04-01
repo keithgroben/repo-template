@@ -85,18 +85,20 @@ If you're using Cursor, add `PROJECT_PROTOCOL.md` as a [Cursor Rule](https://doc
 ## AI workflow overview
 
 ```
-Cursor + Sonnet  →  write feature spec (roadmap entry)
-       ↓
-  Claude Haiku   →  implement entire feature in one session
-       ↓
- Claude Sonnet   →  review, patch, iterate with human (max 5 passes)
-       ↓
-     Human       →  verify in browser
-       ↓
-     Done        →  Haiku picks up next feature
+Human + AI (any)  →  write feature spec (roadmap entry)
+        ↓
+  Claude Haiku    →  implement entire feature in one session
+        ↓
+ Claude Sonnet    →  review, patch, iterate with human (max 5 passes)
+        ↓
+      Human       →  verify in browser
+        ↓
+      Done        →  Haiku picks up next feature
 ```
 
-See `docs/ai-collaboration.md` for the full pipeline and escalation rules.
+The spec-writing step is flexible — use Cursor + Sonnet for standard features, Opus for complex architecture, or write it yourself for simple work. The output is what matters: a complete, unambiguous spec in `docs/roadmap.md` that Haiku can execute without asking questions.
+
+See `docs/ai-collaboration.md` for the full pipeline, escalation rules, and a guide on choosing the right tool for each situation.
 
 ## Stack decisions
 

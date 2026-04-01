@@ -8,10 +8,12 @@
 
 | Model | Role | Terminal |
 |-------|------|----------|
-| Cursor + Sonnet 4.6 | Roadmap planning, architecture, feature spec writing | Cursor (local) |
-| Claude Haiku 4.5 | Full feature implementation — executes the entire feature spec | Terminal 1 |
-| Claude Sonnet 4.6 | Code review, fixes, iteration with human | Terminal 2 |
-| Claude Opus 4.6 | Escalation only — called when Sonnet cannot resolve | Terminal 3 |
+| Human + AI (any) | Roadmap planning, architecture decisions, feature spec writing | Cursor / Claude.ai / your tool |
+| Claude Haiku | Full feature implementation — executes the entire feature spec | Terminal 1 |
+| Claude Sonnet | Code review, fixes, iteration with human | Terminal 2 |
+| Claude Opus | Escalation only — called when Sonnet cannot resolve | Terminal 3 |
+
+**Spec-writing tools:** Use whatever gets the spec written well. Cursor + Sonnet works for most features. Opus is worth it for complex architecture. A human alone is fine for simple, well-understood work. The output — a complete, unambiguous feature spec in `docs/roadmap.md` — is what matters, not which tool produced it.
 
 ---
 
@@ -54,7 +56,7 @@ Think of this as a human dev team. Haiku is the junior developer who implements 
 ### Normal Flow
 
 ```
-Cursor + Sonnet → write full feature spec (roadmap, 15 features planned ahead)
+Human (+ AI tool of choice) → write full feature spec (roadmap, 15 features planned ahead)
   ↓
 Haiku → implements the ENTIRE feature in one session (all tasks, all files)
   ↓
@@ -66,6 +68,15 @@ Human → verifies in browser
   ↓
 Done → Haiku picks up next feature
 ```
+
+**Choosing a spec-writing tool:**
+
+| Situation | Recommended tool |
+|-----------|-----------------|
+| Standard feature, patterns already exist | Cursor + Sonnet (fast, cheap) |
+| Complex architecture or cross-system design | Human + Opus (worth the cost) |
+| Simple feature you can spec yourself | Human alone (fastest) |
+| Unclear requirements that need exploration | Human + Sonnet in Cursor (iterative) |
 
 **Haiku implements the whole feature.** The tasks listed under a feature are Haiku's internal checklist — not separate sessions. Haiku does not hand off mid-feature unless it's genuinely stuck and cannot proceed without a decision.
 
