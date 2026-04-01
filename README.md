@@ -1,92 +1,74 @@
-# [App Name]
+# repo-template
 
-> [One-line description]
+Opinionated full-stack app template for building internal tools and web apps with a consistent stack and an AI-assisted development workflow.
 
-## Stack
+## What's included
 
-**Frontend**: Preact + JSX · Vite · Tailwind CSS
-**Backend**: Hono API · Supabase (Postgres + Auth + RLS)
-**Deploy**: Docker container · Global Caddy handles TLS + routing
+**Stack**
 
-## Quick Start
+| Layer | Tool |
+|-------|------|
+| Frontend | Preact + JSX + Vite + Tailwind CSS |
+| API | Hono (Node.js) |
+| Database | Supabase (Postgres + Auth + RLS) |
+| Deploy | Docker + Caddy |
 
-### Prerequisites
+**AI workflow** — a Haiku → Sonnet → Human review pipeline built around Claude Code, with structured handoff docs, roadmap templates, and spec-writing guidelines that let a smaller model implement entire features from a well-written spec.
 
-- Node.js 22+
-- Docker + Docker Compose (for deployment)
+**Template sync** — a GitHub Action that propagates shared protocol files (`PROJECT_PROTOCOL.md`, `docs/branching.md`, etc.) to downstream repos via automated PRs.
 
-### Development
+## How to use this
 
-```bash
-# Install dependencies
-npm install
+1. **Clone or fork** this repo to start a new app
+2. **Fill in** `CLAUDE.md` — app name, DB schema, API routes, known gotchas
+3. **Fill in** `docs/overview.md` — what the app does and why
+4. **Rename** `README-TEMPLATE.md` → `README.md` (replace this file)
+5. **Update** `.github/sync-config.json` with your downstream repos
+6. **Set** `REPO_SYNC_TOKEN` in GitHub Actions secrets (PAT with repo write access)
 
-# Copy environment template and fill in credentials
-cp .env.example .env
+## Files
 
-# Start Hono API server (port 3000)
-npm run dev
+| File | Purpose | Syncs to apps? |
+|------|---------|----------------|
+| `PROJECT_PROTOCOL.md` | Claude Code session rules and phase gates | Yes |
+| `CLAUDE.md` | App-specific context — fill in per project | No |
+| `README-TEMPLATE.md` | README starter for app repos | No |
+| `docs/overview.md` | App architecture and stack decisions | No |
+| `docs/ai-collaboration.md` | Multi-model AI pipeline (Haiku → Sonnet → Opus) | No |
+| `docs/architecture-patterns.md` | Hono + SPA coding patterns | Yes |
+| `docs/branching.md` | Git workflow | Yes |
+| `docs/versioning.md` | Semantic versioning rules + changelog format | Yes |
+| `docs/roadmap.md` | Feature tracking template | No |
+| `docs/spec-writing-guide.md` | How to write Haiku-ready feature specs | No |
+| `docs/secrets.md` | Secret management and rotation procedures | Yes |
+| `docs/migration-waves.md` | n8n → Hono migration planning template | No |
+| `AI_HANDOFF.md` | Live cross-session state file for AI models | No |
+| `.env.example` | Environment variable template | No |
+| `.github/sync-config.json` | Sync targets — update with your repos | No |
 
-# In another terminal: start Vite dev server (port 5173, hot reload)
-npm run dev:client
-```
-
-Vite proxies `/api/*` and `/webhook/*` to Hono during development. Edit any `.jsx` file and the browser updates instantly via HMR.
-
-### Production
-
-```bash
-# Build the SPA
-npm run build
-
-# Build and start the container
-docker compose up -d --build
-```
-
-The container runs Hono on port 3000, serving both the built SPA (`dist/`) and API routes. Global Caddy on the host routes traffic to the container by path prefix (e.g., `handle_path /appname/*`).
-
-> Replace `your-domain.com` throughout with your actual domain.
-
-**There is no per-app Caddyfile.** TLS, routing, and path-prefix stripping are handled by the global Caddy instance on the server.
-
-### Deployment Pattern
+## AI workflow overview
 
 ```
-Browser → your-domain.com/appname/ → Global Caddy (strips /appname/) → container:3000
-                                                                  ├── /assets/*  → dist/ (Vite build)
-                                                                  ├── /api/*     → Hono routes
-                                                                  ├── /health    → health check
-                                                                  └── /*         → dist/index.html (SPA fallback)
+Cursor + Sonnet  →  write feature spec (roadmap entry)
+       ↓
+  Claude Haiku   →  implement entire feature in one session
+       ↓
+ Claude Sonnet   →  review, patch, iterate with human (max 5 passes)
+       ↓
+     Human       →  verify in browser
+       ↓
+     Done        →  Haiku picks up next feature
 ```
 
-Key: set `VITE_BASE_PATH=/appname/` in `.env` so Vite generates correct asset URLs that work with Caddy's path stripping.
+See `docs/ai-collaboration.md` for the full pipeline and escalation rules.
 
-> The deployment pattern assumes a global Caddy instance on the host. Adjust for your own reverse proxy setup.
+## Stack decisions
 
-## Docs
-
-
-| Doc                             | Purpose                                      | Syncs? |
-| ------------------------------- | -------------------------------------------- | ------ |
-| `PROJECT_PROTOCOL.md`           | Claude Code session rules                    | Yes    |
-| `docs/architecture-patterns.md` | Hono + SPA patterns, conventions             | Yes    |
-| `docs/branching.md`             | Git workflow                                 | Yes    |
-| `docs/versioning.md`            | Semantic versioning rules                    | Yes    |
-| `CLAUDE.md`                     | App-specific context (schema, APIs, gotchas) | No     |
-| `docs/overview.md`              | Architecture and stack decisions             | No     |
-| `docs/decisions.md`             | Lessons learned                              | No     |
-| `docs/roadmap.md`               | Feature tracking                             | No     |
-| `docs/secrets.md`               | Secret management and rotation               | No     |
-
-
-## Template Sync
-
-Files marked "Syncs" are automatically pushed to downstream repos via GitHub Action when updated here. The action opens a PR in each repo for review.
-
-**Config**: `.github/sync-config.json` — lists target repos and synced files.
-
-**Requires**: A GitHub PAT stored as `REPO_SYNC_TOKEN` secret with repo access to all target repos.
-
-## Structure
-
-See `REPO-STRUCTURE-GUIDE.md` for the full folder convention.
+| Decision | Rationale |
+|----------|-----------|
+| Preact over React | 3KB vs 40KB+. Same JSX API. Swap to React if the app needs the broader ecosystem. |
+| Hono over Express | Lightweight, Web Standards API, built-in middleware. |
+| Vite | Fast dev server, instant HMR, optimized production builds. |
+| Hash routing | No server config needed for SPAs. |
+| Supabase direct reads | RLS enforces access. Anon key + JWT is sufficient for user-scoped reads. |
+| Hono for writes/admin | Service-role key stays server-side. External API calls never go through the SPA. |
