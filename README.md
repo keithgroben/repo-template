@@ -26,6 +26,42 @@ Opinionated full-stack app template for building internal tools and web apps wit
 5. **Update** `.github/sync-config.json` with your downstream repos
 6. **Set** `REPO_SYNC_TOKEN` in GitHub Actions secrets (PAT with repo write access)
 
+## Start with an AI agent
+
+### First session — configure the template for your app
+
+Paste this into your AI agent (Claude Code, Cursor, etc.) when starting a new project from this template:
+
+```
+I just cloned repo-template to build a new app. Before writing any code, help me
+configure the template for this project.
+
+Here is what I'm building:
+[describe your app — what it does, who uses it, what problem it solves]
+
+Please do the following:
+1. Read CLAUDE.md, docs/overview.md, and AI_HANDOFF.md so you understand the
+   template structure.
+2. Fill in CLAUDE.md completely — app name, one-liner, database schema (ask me
+   for table names and columns), API routes, auth flow, environment URLs, and
+   any known gotchas I mention.
+3. Fill in docs/overview.md — what the app does, why it exists, and the core
+   architecture decisions.
+4. Fill in docs/roadmap.md — add the first 3–5 features to "Up Next" using the
+   roadmap template format, based on what I describe.
+5. Rename README-TEMPLATE.md to README.md (replacing the repo-template README).
+6. Commit everything as "Initial app configuration".
+
+Ask me for any information you need to fill in these files accurately. Do not
+invent schema, routes, or features — ask first.
+```
+
+### Every session after that
+
+Your agent reads `PROJECT_PROTOCOL.md` automatically (it's in `CLAUDE.md` at the top). The boot sequence tells it to read `AI_HANDOFF.md` → recent git log → `CLAUDE.md` → `docs/overview.md` before touching anything. No prompt needed — the protocol handles it.
+
+If you're using Cursor, add `PROJECT_PROTOCOL.md` as a [Cursor Rule](https://docs.cursor.com/context/rules-for-ai) so it's always in context.
+
 ## Files
 
 | File | Purpose | Syncs to apps? |
