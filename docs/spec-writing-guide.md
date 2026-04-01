@@ -1,7 +1,7 @@
 # Spec Writing Guide
 ### How to write feature specs that Haiku can actually build
 
-> Used by: Keith + Cursor/Sonnet when writing the roadmap. Read this before writing any `vX.Y.0` entry.
+> Used by: Project owner + Cursor/Sonnet when writing the roadmap. Read this before writing any `vX.Y.0` entry.
 
 ---
 

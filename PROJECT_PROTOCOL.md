@@ -72,7 +72,7 @@ Every task moves through four phases. Do not skip phases. Do not advance without
 
 Use these in conversation and in docs to clarify who does what:
 
-- `[ME]` — Keith handles this
+- `[ME]` — Owner handles this
 - `[CLAUDE]` — Claude Code handles this
 - `[TOGETHER]` — Collaborative task, requires back-and-forth
 

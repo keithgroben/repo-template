@@ -36,7 +36,7 @@ for REPO in $REPOS; do
 
     cd "$CLONE_DIR"
     git config user.name "repo-template-sync"
-    git config user.email "sync@r7c.app"
+    git config user.email "sync@your-domain.com"
     git checkout -b "$BRANCH" 2>/dev/null || { echo "  SKIP: branch exists"; cd "$(dirname "$0")"; rm -rf "$CLONE_DIR"; continue; }
     git add -A
     git commit -m "Sync from repo-template ($(date +%Y-%m-%d))" || { cd "$(dirname "$0")"; rm -rf "$CLONE_DIR"; continue; }

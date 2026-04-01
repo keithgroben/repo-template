@@ -6,7 +6,7 @@
 
 **Frontend**: Preact + JSX · Vite · Tailwind CSS
 **Backend**: Hono API · Supabase (Postgres + Auth + RLS)
-**Deploy**: Docker container on r7net · Global Caddy handles TLS + routing
+**Deploy**: Docker container · Global Caddy handles TLS + routing
 
 ## Quick Start
 
@@ -39,18 +39,20 @@ Vite proxies `/api/*` and `/webhook/*` to Hono during development. Edit any `.js
 # Build the SPA
 npm run build
 
-# Build and start the container on r7net
+# Build and start the container
 docker compose up -d --build
 ```
 
 The container runs Hono on port 3000, serving both the built SPA (`dist/`) and API routes. Global Caddy on the host routes traffic to the container by path prefix (e.g., `handle_path /appname/*`).
+
+> Replace `your-domain.com` throughout with your actual domain.
 
 **There is no per-app Caddyfile.** TLS, routing, and path-prefix stripping are handled by the global Caddy instance on the server.
 
 ### Deployment Pattern
 
 ```
-Browser → r7c.app/appname/ → Global Caddy (strips /appname/) → container:3000
+Browser → your-domain.com/appname/ → Global Caddy (strips /appname/) → container:3000
                                                                   ├── /assets/*  → dist/ (Vite build)
                                                                   ├── /api/*     → Hono routes
                                                                   ├── /health    → health check
@@ -59,19 +61,23 @@ Browser → r7c.app/appname/ → Global Caddy (strips /appname/) → container:3
 
 Key: set `VITE_BASE_PATH=/appname/` in `.env` so Vite generates correct asset URLs that work with Caddy's path stripping.
 
+> The deployment pattern assumes a global Caddy instance on the host. Adjust for your own reverse proxy setup.
+
 ## Docs
 
-| Doc | Purpose | Syncs? |
-|-----|---------|--------|
-| `PROJECT_PROTOCOL.md` | Claude Code session rules | Yes |
-| `docs/architecture-patterns.md` | Hono + SPA patterns, conventions | Yes |
-| `docs/branching.md` | Git workflow | Yes |
-| `docs/versioning.md` | Semantic versioning rules | Yes |
-| `CLAUDE.md` | App-specific context (schema, APIs, gotchas) | No |
-| `docs/overview.md` | Architecture and stack decisions | No |
-| `docs/decisions.md` | Lessons learned | No |
-| `docs/roadmap.md` | Feature tracking | No |
-| `docs/secrets.md` | Secret management and rotation | No |
+
+| Doc                             | Purpose                                      | Syncs? |
+| ------------------------------- | -------------------------------------------- | ------ |
+| `PROJECT_PROTOCOL.md`           | Claude Code session rules                    | Yes    |
+| `docs/architecture-patterns.md` | Hono + SPA patterns, conventions             | Yes    |
+| `docs/branching.md`             | Git workflow                                 | Yes    |
+| `docs/versioning.md`            | Semantic versioning rules                    | Yes    |
+| `CLAUDE.md`                     | App-specific context (schema, APIs, gotchas) | No     |
+| `docs/overview.md`              | Architecture and stack decisions             | No     |
+| `docs/decisions.md`             | Lessons learned                              | No     |
+| `docs/roadmap.md`               | Feature tracking                             | No     |
+| `docs/secrets.md`               | Secret management and rotation               | No     |
+
 
 ## Template Sync
 

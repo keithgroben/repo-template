@@ -38,7 +38,7 @@ The dev branch always shows the **next** version with a `-dev` suffix:
 - At release time: drop `-dev`, merge to main, tag `v1.2.0`
 - After release: dev bumps to `v1.3.0-dev`
 
-Update both `package.json` and `R7NavShell.init({ version })` on dev after every release.
+Update both `package.json` and `NavShell.init({ version })` on dev after every release.
 
 ---
 
@@ -65,11 +65,12 @@ Features = MINOR. Bugs = PATCH. If you're unsure, it's MINOR.
 
 Every version bump follows these steps:
 
-1. **Verify changes tested on dev** — All changes tested at `dev<shortname>.r7c.app`
+1. **Verify changes tested on dev** — All changes tested at your dev URL
 2. **Update CHANGELOG.md** — Add a new version section at the top (see format below)
 3. **Bump version in `package.json`** — Update the `"version"` field
-4. **Bump version in `R7NavShell.init()`** — SPA apps only: update the `version:` string in the nav shell config
+4. **Bump version in `NavShell.init()`** — SPA apps only: update the `version:` string in the nav shell config
 5. **Commit on dev, merge to main** — `git checkout main && git merge dev/<shortname>`
+
 6. **Tag and push** — `git tag v1.x.0 && git push && git push --tags`
 7. **Sync dev branch** — `git checkout dev/<shortname> && git merge main`
 8. **Create GitHub Release** — Title: `v1.x.0`, body: copy from CHANGELOG.md
@@ -129,8 +130,8 @@ This gives users three ways to read release notes: GitHub, the SPA sidebar versi
 
 ```
 ~/projects/www/changelogs/
-├── atom-bomb.md → ~/projects/.../r7capp-atom-bomb/CHANGELOG.md
-├── switchboard.md → ~/projects/.../the-switchboard/CHANGELOG.md
+├── app-one.md → ~/projects/.../app-one/CHANGELOG.md
+├── app-two.md → ~/projects/.../app-two/CHANGELOG.md
 └── my-app.md → ~/projects/.../my-app/CHANGELOG.md
 ```
 
@@ -140,11 +141,11 @@ Create the symlink: `ln -sf /path/to/repo/CHANGELOG.md ~/projects/www/changelogs
 
 ```yaml
 volumes:
-  - /home/rocketman7k/projects:/home/rocketman7k/projects:ro
-  - /home/rocketman7k/projects/www/changelogs:/var/www/changelogs:ro
+  - /home/your-username/projects:/home/your-username/projects:ro
+  - /home/your-username/projects/www/changelogs:/var/www/changelogs:ro
 ```
 
-**3. Add rewrite + handler** in the Caddyfile (inside the `r7c.app` block, BEFORE `handle_path` blocks):
+**3. Add rewrite + handler** in the Caddyfile (inside your domain's block, BEFORE `handle_path` blocks):
 
 ```caddy
 # Changelogs — rewrite fires before handle_path
@@ -175,14 +176,14 @@ header @dynamic Cache-Control "no-cache, must-revalidate"
 **1. Add script tags** to your SPA's `<head>` (nav-shell and changelog are shared libs):
 
 ```html
-<script src="https://r7c.app/lib/nav-shell.js"></script>
-<script src="https://r7c.app/lib/changelog.js"></script>
+<script src="https://your-domain.com/lib/nav-shell.js"></script>
+<script src="https://your-domain.com/lib/changelog.js"></script>
 ```
 
 **2. Pass `version` to `R7NavShell.init()`** — the version label becomes a clickable link to `#changelog`:
 
 ```javascript
-var shell = R7NavShell.init({
+var shell = NavShell.init({
     appName: 'My App',
     appSubtitle: 'ADMIN',
     version: 'v0.1.0',
@@ -200,7 +201,7 @@ var shell = R7NavShell.init({
 case 'changelog': renderChangelog(); break;
 ```
 
-**4. Add Changelog view** — Preact component (reference: `r7capp-atom-bomb/public/views/Changelog.js`):
+**4. Add Changelog view** — Preact component (reference: `your-app/src/views/Changelog.jsx`):
 
 ```javascript
 import { html, useState, useEffect } from '../lib/preact.js';

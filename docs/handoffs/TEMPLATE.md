@@ -18,7 +18,7 @@
 
 ## Open Questions
 
-- [Anything unresolved that needs Keith's input]
+- [Anything unresolved that needs the owner's input]
 
 ## Files Changed
 

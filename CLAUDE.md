@@ -23,7 +23,7 @@
 | Field | Value |
 |-------|-------|
 | **Migration wave** | [e.g., Wave 1 / Wave 2 / Wave 3 / Wave 4 / Wave 5 / Wave 6] |
-| **Server** | [e.g., r7c.app / explorer-one] |
+| **Server** | [e.g., your-server-one / your-server-two] |
 | **Target state** | Preact+JSX+Vite + Hono API + Supabase/Postgres |
 | **Frontend work** | [e.g., "Vanilla JS → Preact+JSX+Vite" / "Already React+Vite, no change"] |
 | **Backend work** | [e.g., "Express → Hono" / "Add Hono (no backend yet)" / "4 n8n workflows → Hono routes"] |
@@ -39,7 +39,7 @@
 ### Key migration decisions for this app
 
 - [e.g., "PIN auth — this is an internal tool"]
-- [e.g., "Portal at r7c.app root served from this repo — must keep working during migration"]
+- [e.g., "Portal at your-domain.com root served from this repo — must keep working during migration"]
 
 Follow `docs/migration-checklist.md` for step-by-step process. Dev branch: `dev/v2.0`.
 
@@ -82,7 +82,7 @@ Follow `docs/migration-checklist.md` for step-by-step process. Dev branch: `dev/
 
 | Environment | URL | Notes |
 |-------------|-----|-------|
-| Production | [e.g., app.r7c.app] | Caddy reverse proxy |
+| Production | [e.g., app.your-domain.com] | Caddy reverse proxy |
 | Dev | [e.g., localhost:5173] | Vite dev server (proxies /api/* to :3001) |
 
 ---

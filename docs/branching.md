@@ -20,26 +20,23 @@
 Every app with a web UI gets a long-lived `dev/<shortname>` branch:
 
 1. **Branch**: `dev/<shortname>` — never deleted, always available
-2. **Worktree**: `~/projects/keithgroben/<repo>-dev` (or `~/projects/Wayfinder-Digital/<repo>-dev`)
-3. **Dev URL**: `dev<shortname>.r7c.app` — Caddy serves from the worktree directory
-4. **Production URL**: `<app>.r7c.app` — Caddy serves from the main worktree
+2. **Worktree**: `~/projects/your-username/<repo>-dev` (or `~/projects/your-org/<repo>-dev`)
+3. **Dev URL**: `dev<shortname>.your-domain.com` — Caddy serves from the worktree directory
+4. **Production URL**: `<app>.your-domain.com` — Caddy serves from the main worktree
 
 ### App-to-Shortname Mapping
 
 | App | Repo | Branch | Worktree | Dev URL |
 |-----|------|--------|----------|---------|
-| The Switchboard | the-switchboard | `dev/switchboard` | `the-switchboard-dev` | `devswitch.r7c.app` |
-| Atom Bomb | atom-bomb | `dev/atom` | `atom-bomb-dev` | `devatom.r7c.app` |
-| CB Forms | cb-forms | `dev/forms` | `cb-forms-dev` | `devforms.r7c.app` |
-| RobCo Atomizer | robco-atomizer | `dev/atomizer` | `robco-atomizer-dev` | `devatomizer.r7c.app` |
-| Intake | intake | `dev/intake` | `intake-dev` | `devin.r7c.app` |
-| Porkchop Express | the-porkchop-express | `dev/porkchop` | `the-porkchop-express-dev` | `devpce.r7c.app` |
+| App One | app-one | `dev/one` | `app-one-dev` | `devone.your-domain.com` |
+| App Two | app-two | `dev/two` | `app-two-dev` | `devtwo.your-domain.com` |
+| App Three | app-three | `dev/three` | `app-three-dev` | `devthree.your-domain.com` |
 
 ### Apps That Skip Worktree/Caddy
 
-- **CLI tools** (Nintendo Power) — no web UI, no dev URL needed
+- **CLI tools** — no web UI, no dev URL needed
 - **Externally hosted apps** — dev preview depends on hosting provider (Netlify, etc.)
-- **Wayfinder-Digital apps** — follow the same versioning/changelog conventions but dev preview setup depends on their hosting
+- **Third-party org apps** — follow the same versioning/changelog conventions but dev preview setup depends on their hosting
 
 ---
 
@@ -48,12 +45,12 @@ Every app with a web UI gets a long-lived `dev/<shortname>` branch:
 ### Daily Development
 
 ```
-1. cd ~/projects/keithgroben/<repo>-dev     # worktree on dev/<shortname>
+1. cd ~/projects/your-username/<repo>-dev   # worktree on dev/<shortname>
 2. git pull                                  # sync with remote
 3. ... do the work ...
 4. git add <files> && git commit -m "..."
 5. git push
-6. Test at dev<shortname>.r7c.app
+6. Test at dev<shortname>.your-domain.com
 ```
 
 ### Release (dev → main → tag)
@@ -73,7 +70,7 @@ Every app with a web UI gets a long-lived `dev/<shortname>` branch:
 ### Feature/Fix Branches (optional, for larger work)
 
 ```
-1. cd ~/projects/keithgroben/<repo>-dev
+1. cd ~/projects/your-username/<repo>-dev
 2. git checkout -b feature/my-feature       # branch from dev
 3. ... do the work ...
 4. git checkout dev/<shortname>
@@ -86,13 +83,13 @@ Every app with a web UI gets a long-lived `dev/<shortname>` branch:
 ## Setting Up a New Dev Worktree
 
 ```bash
-cd ~/projects/keithgroben/<repo>
+cd ~/projects/your-username/<repo>
 git checkout -b dev/<shortname>
 git push -u origin dev/<shortname>
-git worktree add ~/projects/keithgroben/<repo>-dev dev/<shortname>
+git worktree add ~/projects/your-username/<repo>-dev dev/<shortname>
 ```
 
-Then add a Caddy block for `dev<shortname>.r7c.app` pointing to the worktree's `public/` directory.
+Then add a Caddy block for `dev<shortname>.your-domain.com` pointing to the worktree's `public/` directory.
 
 ---
 

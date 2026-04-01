@@ -64,7 +64,7 @@ jobs:
 
             cd "$CLONE_DIR"
             git config user.name "repo-template-sync"
-            git config user.email "sync@r7c.app"
+            git config user.email "sync@your-domain.com"
             git checkout -b "$BRANCH" 2>/dev/null || {
               echo "  SKIP: branch exists"
               cd /
@@ -75,7 +75,7 @@ jobs:
             git commit -m "$COMMIT_MSG" || { cd /; rm -rf "$CLONE_DIR"; continue; }
             git push origin "$BRANCH" 2>/dev/null || { echo "  SKIP: push failed"; cd /; rm -rf "$CLONE_DIR"; continue; }
 
-            PR_BODY="Automated sync of shared files from [repo-template](https://github.com/keithgroben/repo-template)."
+            PR_BODY="Automated sync of shared files from [repo-template](https://github.com/your-username/repo-template)."
             gh pr create --repo "$REPO" --base main --head "$BRANCH" --title "Sync from repo-template" --body "$PR_BODY" 2>/dev/null || echo "  PR exists or failed"
 
             cd /

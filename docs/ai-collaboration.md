@@ -111,7 +111,7 @@ Every roadmap feature gets a `**Lead**` tag. This tells which model owns the imp
 | `[Haiku]` | Claude Haiku | New, isolated, self-contained features where scaffolding and patterns exist |
 | `[Sonnet]` | Claude Sonnet | Existing file edits, multi-file integrations, wiring, code review, complex debugging |
 | `[Opus]` | Claude Opus | Architectural decisions, cross-system design, when Sonnet is stuck |
-| `[Me]` | Operator (Keith) | Business decisions, design approvals, real-world testing, manual triggers |
+| `[Me]` | Operator | Business decisions, design approvals, real-world testing, manual triggers |
 | `[Together]` | Me + Sonnet | Diagnosis sessions, debugging requiring live system state + code changes together |
 
 The Lead tag goes on every `vX.Y.0` entry in `docs/roadmap.md`. Bug fixes (`vX.Y.Z`, Z > 0) default to `[Sonnet]` unless noted otherwise.
