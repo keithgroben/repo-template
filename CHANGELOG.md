@@ -4,6 +4,25 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-04-01
+### Added
+- **AI collaboration framework**: Multi-model pipeline (Haiku → Sonnet → Opus) with git-based handoffs via `AI_HANDOFF.md`, so models pick up context cold without human-written notes
+- **Spec writing guide**: `docs/spec-writing-guide.md` — how to write Haiku-ready feature specs that can be implemented in one session without questions
+- **Lead assignment tags**: Every roadmap feature gets a `[Haiku]` / `[Sonnet]` / `[Opus]` / `[Me]` / `[Together]` ownership tag
+- **Roadmap template**: Updated with Haiku Checklist, Sonnet Review Checklist, and Human Verify sections
+- **Proper README**: Repo-level README explaining the template, how to use it, file inventory, and AI workflow overview
+- **AI agent setup prompt**: Copyable first-session prompt in README for configuring the template for a new app
+
+### Changed
+- **Pipeline spec-writing step**: Generalized from "Cursor + Sonnet" to "Human + AI tool of choice" — Sonnet for standard features, Opus for architecture, human alone for simple work
+- **Docs scrubbed for public release**: All personal usernames, org names, internal hostnames, and project-specific identifiers replaced with generic placeholders throughout docs and config
+- **sync-config.json**: Real downstream repo inventory replaced with placeholder examples
+- **`docs/migration-waves.md`**: Fully genericized — all internal app/server names replaced with `App-A` / `your-server-one` style placeholders
+
+## [1.1.0] - 2026-03-26
+### Fixed
+- **Production deploy pattern**: Hono container now serves both the built SPA (`dist/`) and API routes directly. Removed separate Caddy static-file container. `VITE_*` env vars passed as Docker build args so they're baked into the SPA bundle at build time.
+
 ## [1.0.0] - 2026-03-25
 ### Added
 - **Frontend stack**: Preact + JSX + Vite + Tailwind CSS with full component library (Badge, ConfirmDialog, EmptyState, InfoCard, LoadingSkeleton, Toast)
