@@ -201,7 +201,7 @@ var shell = NavShell.init({
 case 'changelog': renderChangelog(); break;
 ```
 
-**4. Add Changelog view** — Preact component (reference: `your-app/src/views/Changelog.jsx`):
+**4. Add Changelog view** — Preact component (reference: `your-app/src/views/Changelog.tsx`):
 
 ```javascript
 import { html, useState, useEffect } from '../lib/preact.js';

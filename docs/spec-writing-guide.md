@@ -29,9 +29,9 @@ Run this test: *Could you hand this spec to a capable contractor on their first 
 
 **Wrong**: "Update the items component and the API."
 
-**Right**: `src/views/Items.jsx`, `server/routes/items.js`
+**Right**: `src/views/Items.tsx`, `server/routes/items.ts`
 
-Why it matters: Haiku will create new files if you don't name existing ones. It will create `src/components/ItemList.jsx` when you meant `src/views/Items.jsx`. Name every file. If a file needs to be created, say so explicitly and name it.
+Why it matters: Haiku will create new files if you don't name existing ones. It will create `src/components/ItemList.tsx` when you meant `src/views/Items.tsx`. Name every file. If a file needs to be created, say so explicitly and name it.
 
 ---
 
@@ -39,7 +39,7 @@ Why it matters: Haiku will create new files if you don't name existing ones. It 
 
 **Wrong**: "Follow the existing component pattern."
 
-**Right**: "Follow the pattern in `src/components/Badge.jsx` — same props structure, same conditional render, same Tailwind class approach."
+**Right**: "Follow the pattern in `src/components/Badge.tsx` — same props structure, same conditional render, same Tailwind class approach."
 
 Why it matters: This codebase has multiple patterns. Haiku will pick one. Without guidance it may pick an older or inconsistent one. Naming the file and what specifically to copy removes all guesswork.
 
@@ -87,11 +87,11 @@ This field prevents the most expensive class of Haiku errors: technically correc
 
 Examples of useful guard rails for this stack:
 
-- "Do NOT add a new Supabase client — import from `src/lib/supabase.js`"
-- "Do NOT use `useEffect` to load data — this view uses the pattern from `src/views/Home.jsx`"
-- "Do NOT add the JWT auth middleware to this route — it uses PIN auth, see `server/middleware/auth.js`"
-- "Do NOT create a new route file — add to `server/routes/items.js`"
-- "Do NOT use `window.location` — use the router from `src/index.jsx`"
+- "Do NOT add a new Supabase client — import from `src/lib/supabase.ts`"
+- "Do NOT use `useEffect` to load data — this view uses the pattern from `src/views/Home.tsx`"
+- "Do NOT add the JWT auth middleware to this route — it uses PIN auth, see `server/middleware/auth.ts`"
+- "Do NOT create a new route file — add to `server/routes/items.ts`"
+- "Do NOT use `window.location` — use the router from `src/index.tsx`"
 
 Think of this as: what would a developer who just learned this codebase do wrong? Write those things down.
 
@@ -112,12 +112,12 @@ Think of this as: what would a developer who just learned this codebase do wrong
 **Prevention**: Every route needs an explicit auth note. "No auth — public route." or "PIN auth via `x-app-pin` header." or "JWT via `Authorization: Bearer`."
 
 ### Haiku adds a new component instead of using an existing one
-**Cause**: Spec didn't reference `src/components/Toast.jsx` or similar.
+**Cause**: Spec didn't reference `src/components/Toast.tsx` or similar.
 **Prevention**: In the Pattern field, name every shared component to use. `Toast`, `EmptyState`, `Badge`, `ConfirmDialog`, `LoadingSkeleton` — these exist, Haiku should use them, but it won't unless you say so.
 
 ### Haiku's code works but breaks something else
 **Cause**: The feature touched a shared file and Haiku didn't know what else depended on it.
-**Prevention**: If a file is shared (like `server/routes/items.js` or `src/lib/api.js`), say: "This file is shared — only add, do not remove or rename anything existing."
+**Prevention**: If a file is shared (like `server/routes/items.ts` or `src/lib/api.ts`), say: "This file is shared — only add, do not remove or rename anything existing."
 
 ### Haiku implements it correctly but incompletely
 **Cause**: The Haiku Checklist was missing a step that seemed obvious.
@@ -142,8 +142,8 @@ Think of this as: what would a developer who just learned this codebase do wrong
 
 ```
 #### Implementation Brief
-- **Files**: `src/views/Items.jsx` (modify), `server/routes/items.js` (modify)
-- **Pattern**: Archive button follows pattern in `src/views/Items.jsx` existing delete button —
+- **Files**: `src/views/Items.tsx` (modify), `server/routes/items.ts` (modify)
+- **Pattern**: Archive button follows pattern in `src/views/Items.tsx` existing delete button —
   same ConfirmDialog usage, same loading state, same error toast
 - **Data**: `items` table, column `status` VARCHAR — set to `'archived'` (was `'active'`).
   Use Hono: PATCH `/api/items/:id` with body `{ status: 'archived' }`.
@@ -156,7 +156,7 @@ Think of this as: what would a developer who just learned this codebase do wrong
   5. On error → ConfirmDialog stays open, Toast "Failed to archive — [error]"
 - **Do NOT**: Do not filter archived items in the Supabase query — filter in the component
   (archived items may be needed later). Do not add a new route file — add PATCH to the
-  existing `/api/items` handler in `server/routes/items.js`.
+  existing `/api/items` handler in `server/routes/items.ts`.
 ```
 
 The good spec takes 5 more minutes to write. It saves 30 minutes of Sonnet review.
@@ -174,7 +174,7 @@ Run this before marking a spec ready for Haiku:
 - [ ] Every UI state is described: loading, success, error, empty
 - [ ] Shared components are named (`Toast`, `EmptyState`, `Badge`, `ConfirmDialog`, `LoadingSkeleton`)
 - [ ] "Do NOT" covers the most likely wrong turns for this specific feature
-- [ ] The Haiku Checklist items are concrete things to build, not goals ("add PATCH handler to `server/routes/items.js`" not "implement archiving")
+- [ ] The Haiku Checklist items are concrete things to build, not goals ("add PATCH handler to `server/routes/items.ts`" not "implement archiving")
 - [ ] Read it out loud: does any sentence have two valid interpretations?
 
 ---

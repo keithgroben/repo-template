@@ -1,6 +1,6 @@
 // ─── Hono API Starter ────────────────────────────────────
-// Copy this into server/index.js and customize for your app.
-// Run: node server/index.js (or npm start)
+// Copy this into server/index.ts and customize for your app.
+// Run: tsx server/index.ts (or npm start)
 //
 // In production, this server does TWO jobs:
 // 1. Serves the Vite-built SPA from dist/
@@ -10,6 +10,7 @@
 // This server does NOT handle TLS — Caddy does that.
 
 import { Hono } from 'hono';
+import type { Context, Next } from 'hono';
 import { cors } from 'hono/cors';
 import { logger } from 'hono/logger';
 import { serveStatic } from '@hono/node-server/serve-static';
@@ -17,10 +18,10 @@ import { serve } from '@hono/node-server';
 import { createClient } from '@supabase/supabase-js';
 
 // ─── Config ──────────────────────────────────────────────
-const PORT = process.env.PORT || 3000;
-const SUPABASE_URL = process.env.SUPABASE_URL;
-const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
-const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY;
+const PORT = Number(process.env.PORT) || 3000;
+const SUPABASE_URL = process.env.SUPABASE_URL!;
+const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY!;
 
 // Service-role client — for server-side operations that bypass RLS
 const sbAdmin = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
@@ -41,7 +42,7 @@ app.use('*', cors({
 // user-scoped Supabase client to c.get('sbUser').
 //
 // Usage: app.use('/api/*', authMiddleware);
-async function authMiddleware(c, next) {
+async function authMiddleware(c: Context, next: Next) {
     const header = c.req.header('Authorization');
     if (!header?.startsWith('Bearer ')) {
         return c.json({ error: 'Missing or invalid Authorization header' }, 401);
@@ -78,7 +79,7 @@ async function authMiddleware(c, next) {
 // Set APP_PIN in .env. SPA sends it as x-app-pin header.
 //
 // Usage: app.use('/api/*', pinAuthMiddleware);
-async function pinAuthMiddleware(c, next) {
+async function pinAuthMiddleware(c: Context, next: Next) {
     const pin = c.req.header('x-app-pin');
     if (!pin || pin !== process.env.APP_PIN) {
         return c.json({ error: 'Invalid PIN' }, 401);
@@ -171,7 +172,7 @@ app.delete('/api/items/:id', async (c) => {
 //
 // cron.schedule('0 17 * * 5', async () => {  // Every Friday at 5pm
 //     console.log('[cron] Friday job running');
-//     try { /* your logic */ } catch (err) { console.error('[cron] Failed:', err.message); }
+//     try { /* your logic */ } catch (err) { console.error('[cron] Failed:', (err as Error).message); }
 // });
 
 // ─── Error Handler ───────────────────────────────────────
@@ -198,7 +199,7 @@ const server = serve({ fetch: app.fetch, port: PORT }, () => {
 });
 
 // ─── Graceful Shutdown ──────────────────────────────────
-function shutdown(signal) {
+function shutdown(signal: string) {
     console.log(`[hono] ${signal} received, shutting down gracefully...`);
     server.close(() => {
         console.log('[hono] Server closed.');

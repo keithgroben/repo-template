@@ -24,9 +24,9 @@
 |-------|-------|
 | **Migration wave** | [e.g., Wave 1 / Wave 2 / Wave 3 / Wave 4 / Wave 5 / Wave 6] |
 | **Server** | [e.g., your-server-one / your-server-two] |
-| **Target state** | Preact+JSX+Vite + Hono API + Supabase/Postgres |
-| **Frontend work** | [e.g., "Vanilla JS → Preact+JSX+Vite" / "Already React+Vite, no change"] |
-| **Backend work** | [e.g., "Express → Hono" / "Add Hono (no backend yet)" / "4 n8n workflows → Hono routes"] |
+| **Target state** | TypeScript + Preact+TSX+Vite + Hono API (tsx) + Supabase/Postgres |
+| **Frontend work** | [e.g., "Vanilla JS → Preact+TSX+Vite" / "Already React+Vite, no change"] |
+| **Backend work** | [e.g., "Express → Hono (TS)" / "Add Hono (no backend yet)" / "4 n8n workflows → Hono routes"] |
 | **Risk level** | [Low / Medium / High — and why] |
 | **Blocked by** | [e.g., "Atom Bomb must migrate first (owns profiles table)" / "Nothing"] |
 

@@ -4,6 +4,18 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 
 ## [Unreleased]
 
+## [1.3.0] - 2026-04-07
+### Changed
+- **TypeScript everywhere**: All source files converted from JavaScript/JSX to TypeScript/TSX (strict mode). Frontend (`src/`), server (`starter-server.ts`), and scripts (`scripts/smoke-test.ts`) are all TypeScript.
+- **tsx runtime**: Server runs via `tsx` instead of `node` — executes `.ts` files directly with no compile step. Dev uses `tsx watch` for auto-reload.
+- **tsconfig.json**: Added with strict mode, Preact JSX support, bundler module resolution
+- **Typed components**: All Preact components have explicit prop interfaces
+- **Typed API client**: `src/lib/api.ts` uses generics for type-safe API calls
+- **Typed Supabase client**: `src/lib/supabase.ts` imports Supabase auth types
+- **Dockerfile**: Updated to install `tsx` in production stage and run server via `npx tsx`
+- **package.json**: Added `typescript`, `tsx` dev dependencies; new `typecheck` script; all scripts reference `.ts` files
+- **All documentation**: Updated file references from `.js`/`.jsx` to `.ts`/`.tsx` across README, REPO-STRUCTURE-GUIDE, architecture-patterns, migration-checklist, spec-writing-guide, ai-collaboration, roadmap, versioning, and AI_HANDOFF
+
 ## [1.2.0] - 2026-04-01
 ### Added
 - **AI collaboration framework**: Multi-model pipeline (Haiku → Sonnet → Opus) with git-based handoffs via `AI_HANDOFF.md`, so models pick up context cold without human-written notes

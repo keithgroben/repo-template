@@ -135,8 +135,8 @@ Haiku implements full features. The goal is to have Haiku do as much of the work
 
 A feature spec is written well enough for Haiku when:
 
-- **Every file is named explicitly** — `src/components/Foo.jsx`, not "the component"
-- **Every pattern is referenced** — "follow the pattern in `src/components/Badge.jsx`", not "make it consistent"
+- **Every file is named explicitly** — `src/components/Foo.tsx`, not "the component"
+- **Every pattern is referenced** — "follow the pattern in `src/components/Badge.tsx`", not "make it consistent"
 - **Every output is described exactly** — what the user sees, what the API returns, what gets written to the DB
 - **No architecture decisions are left open** — Haiku executes, it does not design. If a decision is unresolved, Cursor + Sonnet resolves it in the spec before Haiku touches code.
 
@@ -165,7 +165,7 @@ Every `vX.Y.0` feature must be written so Haiku can implement the entire thing i
 Everything Haiku needs. No ambiguity. No architecture decisions left open.
 
 - **Files to create or modify**: list every file by path
-- **Pattern to follow**: `path/to/existing/example.jsx` — [what to copy from it]
+- **Pattern to follow**: `path/to/existing/example.tsx` — [what to copy from it]
 - **Data**: [what goes in, what comes out — field names, types, API response shape]
 - **Behavior**: [exact UI behavior or API behavior, step by step]
 - **Do NOT**: [anything Haiku might do wrong based on the pattern — guard rails]

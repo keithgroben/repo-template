@@ -40,8 +40,8 @@
 
 ## Files Changed This Feature
 
-- `path/to/file.jsx` — [what changed and why]
-- `path/to/file.js` — [what changed and why]
+- `path/to/file.tsx` — [what changed and why]
+- `path/to/file.ts` — [what changed and why]
 
 ## Blocker
 

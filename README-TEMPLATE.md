@@ -4,8 +4,9 @@
 
 ## Stack
 
-**Frontend**: Preact + JSX · Vite · Tailwind CSS
-**Backend**: Hono API · Supabase (Postgres + Auth + RLS)
+**Language**: TypeScript (strict mode)
+**Frontend**: Preact + TSX · Vite · Tailwind CSS
+**Backend**: Hono API (via tsx) · Supabase (Postgres + Auth + RLS)
 **Deploy**: Docker container · Global Caddy handles TLS + routing
 
 ## Quick Start
@@ -29,9 +30,12 @@ npm run dev
 
 # In another terminal: start Vite dev server (port 5173, hot reload)
 npm run dev:client
+
+# Type-check without emitting
+npm run typecheck
 ```
 
-Vite proxies `/api/*` and `/webhook/*` to Hono during development. Edit any `.jsx` file and the browser updates instantly via HMR.
+Vite proxies `/api/*` and `/webhook/*` to Hono during development. Edit any `.tsx` file and the browser updates instantly via HMR.
 
 ### Production
 

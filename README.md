@@ -8,8 +8,9 @@ Opinionated full-stack app template for building internal tools and web apps wit
 
 | Layer | Tool |
 |-------|------|
-| Frontend | Preact + JSX + Vite + Tailwind CSS |
-| API | Hono (Node.js) |
+| Language | TypeScript (strict mode, frontend + backend) |
+| Frontend | Preact + TSX + Vite + Tailwind CSS |
+| API | Hono (Node.js via tsx) |
 | Database | Supabase (Postgres + Auth + RLS) |
 | Deploy | Docker + Caddy |
 
@@ -106,9 +107,11 @@ See `docs/ai-collaboration.md` for the full pipeline, escalation rules, and a gu
 
 | Decision | Rationale |
 |----------|-----------|
-| Preact over React | 3KB vs 40KB+. Same JSX API. Swap to React if the app needs the broader ecosystem. |
-| Hono over Express | Lightweight, Web Standards API, built-in middleware. |
-| Vite | Fast dev server, instant HMR, optimized production builds. |
+| TypeScript everywhere | Strict mode. Catches bugs at build time. Hono, Preact, and Supabase all ship excellent types. |
+| tsx for server runtime | Runs `.ts` files directly — no compile step needed. Fast startup, `--watch` for dev. |
+| Preact over React | 3KB vs 40KB+. Same TSX API. Swap to React if the app needs the broader ecosystem. |
+| Hono over Express | Lightweight, Web Standards API, built-in middleware, first-class TypeScript. |
+| Vite | Fast dev server, instant HMR, native TypeScript support, optimized production builds. |
 | Hash routing | No server config needed for SPAs. |
 | Supabase direct reads | RLS enforces access. Anon key + JWT is sufficient for user-scoped reads. |
-| Hono for writes/admin | Service-role key stays server-side. External API calls never go through the SPA. |
+| Hono for writes/admin | Service-role key stays server-side. External API calls go through Hono, never SPA. |

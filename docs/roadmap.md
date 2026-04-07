@@ -23,8 +23,8 @@ See `docs/ai-collaboration.md` for the Haiku → Sonnet → Human pipeline these
 #### Implementation Brief
 *Haiku implements the entire feature in one session. All decisions must be resolved here before Haiku starts.*
 
-- **Files**: `src/path/to/file.jsx`, `src/lib/api.js`
-- **Pattern**: follow `src/components/Example.jsx` — [what specifically to copy]
+- **Files**: `src/path/to/file.tsx`, `src/lib/api.ts`
+- **Pattern**: follow `src/components/Example.tsx` — [what specifically to copy]
 - **Data**: [field names, API response shape, DB columns touched]
 - **Behavior**: [step-by-step — what renders, what API returns, what saves]
 - **Do NOT**: [guard rails — common wrong turns based on the patterns]
@@ -58,8 +58,8 @@ See `docs/ai-collaboration.md` for the Haiku → Sonnet → Human pipeline these
 **Pass Count**: 0
 
 #### Implementation Brief
-- **Files**: `src/path/to/file.jsx`
-- **Pattern**: follow `src/components/Example.jsx`
+- **Files**: `src/path/to/file.tsx`
+- **Pattern**: follow `src/components/Example.tsx`
 - **Behavior**: [exact behavior]
 - **Do NOT**: [guard rail]
 

@@ -1,23 +1,23 @@
 // Smoke test — verifies the Hono API is responding correctly.
-// Usage: npm run smoke (or: node scripts/smoke-test.js)
+// Usage: npm run smoke (or: tsx scripts/smoke-test.ts)
 // Expects the API to be running on the port specified in .env or default 3000.
 
 const BASE = process.env.API_URL || `http://localhost:${process.env.PORT || 3000}`;
 let passed = 0;
 let failed = 0;
 
-async function test(name, fn) {
+async function test(name: string, fn: () => Promise<void>) {
     try {
         await fn();
         console.log(`  PASS  ${name}`);
         passed++;
     } catch (err) {
-        console.error(`  FAIL  ${name}: ${err.message}`);
+        console.error(`  FAIL  ${name}: ${(err as Error).message}`);
         failed++;
     }
 }
 
-function assert(condition, message) {
+function assert(condition: boolean, message: string) {
     if (!condition) throw new Error(message);
 }
 
@@ -52,6 +52,6 @@ async function run() {
 }
 
 run().catch(err => {
-    console.error('Smoke test crashed:', err.message);
+    console.error('Smoke test crashed:', (err as Error).message);
     process.exit(1);
 });

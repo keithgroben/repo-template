@@ -1,7 +1,9 @@
 // Toast is imperative (outside Preact) — called via Toast.success(), Toast.error(), etc.
-// Import this file once in index.jsx to initialize.
+// Import this file once in index.tsx to initialize.
 
-const COLORS = {
+type ToastType = 'success' | 'error' | 'info' | 'warning';
+
+const COLORS: Record<ToastType, string> = {
     success: 'bg-emerald-600',
     error:   'bg-red-600',
     info:    'bg-blue-600',
@@ -9,10 +11,11 @@ const COLORS = {
 };
 
 export const Toast = {
-    show(message, type = 'success', duration = 3500) {
+    show(message: string, type: ToastType = 'success', duration = 3500) {
         const container = document.getElementById('toast-container');
+        if (!container) return;
         const toast = document.createElement('div');
-        toast.className = `${COLORS[type] || COLORS.info} text-white px-4 py-2.5 rounded-lg shadow-lg text-sm font-medium max-w-sm`;
+        toast.className = `${COLORS[type]} text-white px-4 py-2.5 rounded-lg shadow-lg text-sm font-medium max-w-sm`;
         toast.style.animation = 'slideIn 0.25s ease-out';
         toast.textContent = message;
         container.appendChild(toast);
@@ -21,11 +24,11 @@ export const Toast = {
             toast.addEventListener('animationend', () => toast.remove());
         }, duration);
     },
-    success(msg) { this.show(msg, 'success'); },
-    error(msg)   { this.show(msg, 'error'); },
-    info(msg)    { this.show(msg, 'info'); },
-    warning(msg) { this.show(msg, 'warning'); },
+    success(msg: string) { this.show(msg, 'success'); },
+    error(msg: string)   { this.show(msg, 'error'); },
+    info(msg: string)    { this.show(msg, 'info'); },
+    warning(msg: string) { this.show(msg, 'warning'); },
 };
 
 // Make available globally for convenience
-window.Toast = Toast;
+(window as unknown as Record<string, unknown>).Toast = Toast;

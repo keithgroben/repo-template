@@ -1,4 +1,13 @@
-export function ConfirmDialog({ open, title, message, confirmLabel, onConfirm, onCancel }) {
+interface ConfirmDialogProps {
+    open: boolean;
+    title?: string;
+    message?: string;
+    confirmLabel?: string;
+    onConfirm: () => void;
+    onCancel: () => void;
+}
+
+export function ConfirmDialog({ open, title, message, confirmLabel, onConfirm, onCancel }: ConfirmDialogProps) {
     if (!open) return null;
     return (
         <div

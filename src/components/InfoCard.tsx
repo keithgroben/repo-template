@@ -1,4 +1,10 @@
-export function InfoCard({ label, value, sub }) {
+interface InfoCardProps {
+    label: string;
+    value: string;
+    sub?: string;
+}
+
+export function InfoCard({ label, value, sub }: InfoCardProps) {
     return (
         <div className="bg-white rounded-xl border border-gray-100 p-5 shadow-sm hover:shadow-md transition-shadow duration-200">
             <span className="text-[11px] font-semibold uppercase tracking-widest text-gray-400">{label}</span>

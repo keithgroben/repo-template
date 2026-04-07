@@ -1,6 +1,6 @@
 # Repo Template — Folder Structure Guide
 
-> Updated 2026-03-25 — Preact+JSX+Vite+Tailwind + Hono API + Supabase/Postgres
+> Updated 2026-04-07 — TypeScript + Preact+TSX+Vite+Tailwind + Hono API + Supabase/Postgres
 
 ```
 ├── PROJECT_PROTOCOL.md          ← Session rules for Claude Code (read first, always)
@@ -9,8 +9,9 @@
 ├── .gitignore                   ← node_modules, .env, dist/
 ├── Dockerfile                   ← Multi-stage build: Vite SPA + Hono server, runs as node user
 ├── docker-compose.yml           ← Single service (global Caddy handles routing)
-├── package.json                 ← Dependencies + scripts (dev, build, start)
-├── vite.config.js               ← Vite + Preact preset + Tailwind
+├── package.json                 ← Dependencies + scripts (dev, build, start, typecheck)
+├── tsconfig.json                ← TypeScript config (strict mode, Preact JSX)
+├── vite.config.ts               ← Vite + Preact preset + Tailwind
 ├── index.html                   ← Vite HTML entry point
 ├── docs/
 │   ├── overview.md              ← What this app is, why it exists, architecture
@@ -24,34 +25,34 @@
 │   └── handoffs/
 │       ├── TEMPLATE.md          ← Copy this for each session handoff
 │       └── 2026-03-16-notes.md  ← (example) Date-prefixed session notes
-├── src/                         ← Frontend source (Preact + JSX + Tailwind)
-│   ├── index.jsx                ← App entry point (mounts to #app)
+├── src/                         ← Frontend source (Preact + TSX + Tailwind)
+│   ├── index.tsx                ← App entry point (mounts to #app)
 │   ├── index.css                ← Tailwind base import
 │   ├── components/
-│   │   ├── Badge.jsx            ← Reusable UI components
-│   │   ├── Toast.jsx
-│   │   ├── DataTable.jsx
-│   │   ├── ConfirmDialog.jsx
-│   │   ├── InfoCard.jsx
-│   │   └── LoadingSkeleton.jsx
+│   │   ├── Badge.tsx            ← Reusable UI components
+│   │   ├── Toast.tsx
+│   │   ├── DataTable.tsx
+│   │   ├── ConfirmDialog.tsx
+│   │   ├── InfoCard.tsx
+│   │   └── LoadingSkeleton.tsx
 │   ├── views/                   ← One file per route/view
-│   │   ├── Home.jsx
-│   │   └── Settings.jsx
+│   │   ├── Home.tsx
+│   │   └── Settings.tsx
 │   └── lib/
-│       ├── supabase.js          ← Supabase client init + auth helpers
-│       └── api.js               ← Fetch wrapper for Hono API calls
-├── server/                      ← Hono API backend (Node.js)
-│   ├── index.js                 ← App setup, middleware, server start
+│       ├── supabase.ts          ← Supabase client init + auth helpers
+│       └── api.ts               ← Typed fetch wrapper for Hono API calls
+├── server/                      ← Hono API backend (TypeScript, run via tsx)
+│   ├── index.ts                 ← App setup, middleware, server start
 │   ├── routes/
-│   │   ├── items.js             ← /api/items CRUD routes (example)
-│   │   ├── webhooks.js          ← /webhook/* receivers
-│   │   └── admin.js             ← /api/admin/* protected routes
+│   │   ├── items.ts             ← /api/items CRUD routes (example)
+│   │   ├── webhooks.ts          ← /webhook/* receivers
+│   │   └── admin.ts             ← /api/admin/* protected routes
 │   ├── middleware/
-│   │   └── auth.js              ← Supabase JWT or PIN auth
+│   │   └── auth.ts              ← Supabase JWT or PIN auth
 │   ├── jobs/
-│   │   └── cron.js              ← node-cron scheduled jobs
+│   │   └── cron.ts              ← node-cron scheduled jobs
 │   └── lib/
-│       └── supabase.js          ← Supabase client init (admin + user-scoped)
+│       └── supabase.ts          ← Supabase client init (admin + user-scoped)
 ├── supabase/                    ← SQL migrations (numbered: 001_, 002_, etc.)
 └── workflows/                   ← n8n workflow JSON exports (if migrating)
 ```
@@ -62,9 +63,10 @@
 
 | Layer | Tool | Why |
 |-------|------|-----|
+| Language | TypeScript (strict) | Catch bugs at build time, full IDE support |
 | Framework | Preact 10.x (3KB) | React-compatible API, tiny bundle. Swap to React if needed. |
-| Markup | JSX | Standard component syntax, full IDE support |
-| Build | Vite | Fast dev server, instant HMR, optimized production builds |
+| Markup | TSX | Standard component syntax, type-safe props |
+| Build | Vite | Fast dev server, instant HMR, native TS support, optimized production builds |
 | Styling | Tailwind CSS | Utility-first, built by Vite plugin, tree-shaken in production |
 | Data | Supabase JS v2 | Direct queries from SPA (RLS enforced) + auth |
 | API calls | fetch → Hono | Service-role operations, external APIs, webhooks |
@@ -73,16 +75,17 @@
 
 If an app needs React instead of Preact:
 
-1. `npm install react react-dom` (remove `preact`)
-2. Update `vite.config.js`: remove `@preact/preset-vite`, add `@vitejs/plugin-react`
-3. Change imports: `preact/hooks` → `react`, `preact` → `react-dom/client`
-4. Everything else stays the same — JSX, Tailwind, Vite, same component structure.
+1. `npm install react react-dom @types/react @types/react-dom` (remove `preact`)
+2. Update `vite.config.ts`: remove `@preact/preset-vite`, add `@vitejs/plugin-react`
+3. Update `tsconfig.json`: change `jsxImportSource` from `preact` to `react`, remove `paths`
+4. Change imports: `preact/hooks` → `react`, `preact` → `react-dom/client`
+5. Everything else stays the same — TSX, Tailwind, Vite, same component structure.
 
 ### API-only (mobile apps)
 
 If the frontend is a mobile app (React Native, etc.):
 
-1. Remove `src/`, `index.html`, `vite.config.js`, Caddy static file config
+1. Remove `src/`, `index.html`, `vite.config.ts`, Caddy static file config
 2. Keep `server/` — the Hono API is the entire backend
 3. Caddy only reverse proxies `/api/*` and `/webhook/*` to Hono
 4. Mobile app calls the same `/api/*` endpoints
@@ -93,8 +96,9 @@ If the frontend is a mobile app (React Native, etc.):
 
 | Layer | Tool | Why |
 |-------|------|-----|
+| Language | TypeScript (strict) | Same language as frontend, Hono has first-class TS types |
 | API server | Hono | Lightweight (~14KB), Web Standards API, built-in middleware |
-| Runtime | Node.js 20+ | `@hono/node-server` adapter |
+| Runtime | Node.js 22+ via tsx | Runs `.ts` directly — no compile step needed |
 | Database | Supabase (Postgres) | Managed Postgres, Auth, RLS, real-time |
 | Cron | node-cron | Scheduled jobs, replaces external cron services |
 | Email | Resend (via API) | Transactional email from Hono routes |
@@ -104,16 +108,26 @@ If the frontend is a mobile app (React Native, etc.):
 
 ## Component Convention
 
-Components live in `src/components/` as JSX modules. Each file exports one component.
+Components live in `src/components/` as TSX modules. Each file exports one component with a typed props interface.
 
-```jsx
-// src/components/Badge.jsx
-const COLORS = {
+```tsx
+// src/components/Badge.tsx
+interface ColorDef {
+    bg: string;
+    text: string;
+}
+
+const COLORS: Record<string, ColorDef> = {
     Active:   { bg: 'bg-emerald-50', text: 'text-emerald-700' },
     Inactive: { bg: 'bg-gray-100',   text: 'text-gray-500' },
 };
 
-export function Badge({ label, colorMap }) {
+interface BadgeProps {
+    label: string;
+    colorMap?: Record<string, ColorDef>;
+}
+
+export function Badge({ label, colorMap }: BadgeProps) {
     const colors = colorMap || COLORS;
     const c = colors[label] || { bg: 'bg-gray-100', text: 'text-gray-600' };
     return (
@@ -130,14 +144,20 @@ export function Badge({ label, colorMap }) {
 
 Views live in `src/views/`. Each view is a component that represents one screen/route.
 
-```jsx
-// src/views/Home.jsx
+```tsx
+// src/views/Home.tsx
 import { useState, useEffect } from 'preact/hooks';
 import { Badge } from '../components/Badge';
 import { supabase } from '../lib/supabase';
 
+interface Item {
+    id: string;
+    name: string;
+    status: string;
+}
+
 export function HomeView() {
-    const [items, setItems] = useState([]);
+    const [items, setItems] = useState<Item[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -167,8 +187,8 @@ export function HomeView() {
 
 Hash-based routing in the app entry point:
 
-```jsx
-// src/index.jsx
+```tsx
+// src/index.tsx
 import { render } from 'preact';
 import { useState, useEffect } from 'preact/hooks';
 import { HomeView } from './views/Home';
@@ -193,7 +213,7 @@ function App() {
     }
 }
 
-render(<App />, document.getElementById('app'));
+render(<App />, document.getElementById('app')!);
 ```
 
 ---
@@ -206,6 +226,9 @@ npm run dev
 
 # Terminal 2: Vite dev server (frontend on :5173, hot reload)
 npm run dev:client
+
+# Type-check (CI or before deploy)
+npm run typecheck
 ```
 
 Vite's proxy config forwards `/api/*`, `/webhook/*`, and `/health` to the Hono server automatically during development. In production, Hono serves the built SPA from `dist/` and handles API routes — global Caddy routes traffic to the container.
@@ -217,7 +240,7 @@ npm run build                     # Vite builds SPA to dist/
 docker compose up -d --build      # Builds image + starts container on r7net
 ```
 
-- Container runs Hono on port 3000 (serves dist/ + API)
+- Container runs Hono via tsx on port 3000 (serves dist/ + API)
 - Global Caddy routes `your-domain.com/<appname>/*` to the container
 - Caddy strips the path prefix — Hono receives `/`, not `/<appname>/`
 - Set `VITE_BASE_PATH=/<appname>/` so asset URLs work through Caddy
@@ -249,10 +272,11 @@ Do NOT create separate `/admin/` URL paths. Use the auth middleware's `isAdmin` 
 | Remember how to use branches | `docs/branching.md` |
 | Know which version number to bump | `docs/versioning.md` |
 | Add a new API route | `server/routes/` |
-| Add a scheduled job | `server/jobs/cron.js` |
-| Add a webhook receiver | `server/routes/webhooks.js` |
+| Add a scheduled job | `server/jobs/cron.ts` |
+| Add a webhook receiver | `server/routes/webhooks.ts` |
 | Add a new reusable UI element | `src/components/` |
 | Add a new page/screen | `src/views/` |
 | Manage secrets | `docs/secrets.md` |
 | Add a database migration | `supabase/` |
 | Set up environment variables | `.env.example` → `.env` |
+| Type-check the project | `npm run typecheck` |

@@ -26,17 +26,17 @@ Hono is the API server for all apps. It handles CRUD, webhooks, scheduled jobs, 
 
 ```
 server/
-├── index.js          — Hono app setup, middleware, server start
+├── index.ts          — Hono app setup, middleware, server start
 ├── routes/
-│   ├── items.js      — /api/items CRUD routes
-│   ├── webhooks.js   — /webhook/* receivers
-│   └── admin.js      — /api/admin/* protected routes
+│   ├── items.ts      — /api/items CRUD routes
+│   ├── webhooks.ts   — /webhook/* receivers
+│   └── admin.ts      — /api/admin/* protected routes
 ├── middleware/
-│   └── auth.js       — Supabase JWT or PIN auth middleware
+│   └── auth.ts       — Supabase JWT or PIN auth middleware
 ├── jobs/
-│   └── cron.js       — node-cron scheduled jobs
+│   └── cron.ts       — node-cron scheduled jobs
 └── lib/
-    └── supabase.js   — Supabase client initialization (admin + user-scoped)
+    └── supabase.ts   — Supabase client initialization (admin + user-scoped)
 ```
 
 ### Auth patterns
@@ -70,7 +70,7 @@ Applied in order for all `/api/*` routes:
 
 All API responses are JSON. Arrays for list endpoints, objects for single-item endpoints.
 
-```javascript
+```typescript
 GET  /api/items       → [{ id, name, ... }, ...]    // Array (even if empty)
 POST /api/items       → { id, name, ... }            // Created object
 PUT  /api/items/:id   → { id, name, ... }            // Updated object
@@ -130,21 +130,21 @@ Called from Hono: `await sbAdmin.rpc('calculate_send_after', { p_customer_id: id
 
 ### Stack
 
-Preact + JSX + Vite + Tailwind CSS. Built and served as static files by Caddy. Swap Preact for React when an app needs the broader React ecosystem.
+TypeScript + Preact + TSX + Vite + Tailwind CSS. Built and served as static files by Caddy. Swap Preact for React when an app needs the broader React ecosystem.
 
 ### File structure
 
 ```
 src/
-├── index.jsx          — Entry point, mounts App to #app
+├── index.tsx          — Entry point, mounts App to #app
 ├── index.css          — @import "tailwindcss"
 ├── components/
-│   └── [Component].jsx — Reusable UI components
+│   └── [Component].tsx — Reusable UI components (typed props interfaces)
 ├── views/
-│   └── [View].jsx     — Page-level views (one per route)
+│   └── [View].tsx     — Page-level views (one per route)
 └── lib/
-    ├── supabase.js    — Supabase client + auth helpers
-    └── api.js         — Fetch wrapper for /api/* calls
+    ├── supabase.ts    — Supabase client + auth helpers
+    └── api.ts         — Typed fetch wrapper for /api/* calls
 ```
 
 ### State management

@@ -14,7 +14,7 @@ function App() {
 
     const [view, param] = route.includes('/')
         ? [route.split('/')[0], route.split('/')[1]]
-        : [route, null];
+        : [route, undefined];
 
     const renderView = () => {
         switch (view) {
@@ -45,7 +45,11 @@ function App() {
     );
 }
 
-function DetailView({ id }) {
+interface DetailViewProps {
+    id?: string;
+}
+
+function DetailView({ id }: DetailViewProps) {
     return (
         <div className="max-w-3xl mx-auto p-6" style={{ animation: 'fadeUp 0.35s ease-out both' }}>
             <a href="#home" className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-900 mb-4 transition-colors">
@@ -59,4 +63,4 @@ function DetailView({ id }) {
     );
 }
 
-render(<App />, document.getElementById('app'));
+render(<App />, document.getElementById('app')!);

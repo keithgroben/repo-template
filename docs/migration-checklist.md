@@ -15,17 +15,18 @@
 
 ## Frontend Migration
 
-> Skip if the app already uses Preact + JSX + Vite.
+> Skip if the app already uses TypeScript + Preact + TSX + Vite.
 
-- [ ] `npm init -y` and install: `vite @preact/preset-vite tailwindcss`
-- [ ] Create `vite.config.js` with Preact preset
+- [ ] `npm init -y` and install: `vite @preact/preset-vite tailwindcss typescript tsx`
+- [ ] Create `tsconfig.json` and `vite.config.ts` with Preact preset
 - [ ] Create `src/` directory, move components/views from `public/` to `src/`
-- [ ] Rename `.js` → `.jsx` for files with markup
-- [ ] Convert htm tagged templates to JSX syntax
+- [ ] Rename `.js` → `.ts` and `.jsx` → `.tsx` for all source files
+- [ ] Convert htm tagged templates to TSX syntax, add prop interfaces
 - [ ] Replace Tailwind CDN `<script>` with `@import "tailwindcss"` in `index.css`
-- [ ] Replace ES5 patterns (`var`, `.then`) with modern JS (`const/let`, `async/await`)
-- [ ] Update `index.html`: `<script type="module" src="/src/index.jsx">`
+- [ ] Replace ES5 patterns (`var`, `.then`) with modern TS (`const/let`, `async/await`)
+- [ ] Update `index.html`: `<script type="module" src="/src/index.tsx">`
 - [ ] Test: `npm run dev` — SPA loads, all views render, Supabase reads work
+- [ ] Run `npm run typecheck` — no type errors
 
 ---
 
@@ -36,19 +37,20 @@
 ### Setup
 
 - [ ] Create `server/` directory
-- [ ] Copy `starter-server.js` → `server/index.js`, customize
+- [ ] Copy `starter-server.ts` → `server/index.ts`, customize
 - [ ] Install: `npm install hono @hono/node-server @supabase/supabase-js`
+- [ ] Install dev: `npm install -D typescript tsx`
 - [ ] Install if needed: `npm install node-cron` (for cron workflows)
 - [ ] Create `.env` from `.env.example`, fill in credentials
 - [ ] Add auth middleware (Supabase JWT or PIN — pick one per app)
-- [ ] Test: `node server/index.js` — health check responds at `/health`
+- [ ] Test: `tsx server/index.ts` — health check responds at `/health`
 
 ### Per-workflow migration
 
 For each n8n workflow being replaced:
 
 1. **Map the workflow**: Document what the n8n workflow does (trigger → nodes → response)
-2. **Create Hono route**: Write the equivalent route handler in `server/index.js` (or a route file)
+2. **Create Hono route**: Write the equivalent route handler in `server/index.ts` (or a route file)
 3. **Test the route**: Call it with the same payload the SPA sends to n8n
 4. **Switch the SPA**: Update the fetch URL from `/webhook/app/api` to `/api/...`
 5. **Verify end-to-end**: Full user flow works through the new route

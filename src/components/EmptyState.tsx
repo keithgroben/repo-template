@@ -1,4 +1,11 @@
-export function EmptyState({ title, message, actionLabel, onAction }) {
+interface EmptyStateProps {
+    title?: string;
+    message?: string;
+    actionLabel?: string;
+    onAction?: () => void;
+}
+
+export function EmptyState({ title, message, actionLabel, onAction }: EmptyStateProps) {
     return (
         <div className="flex flex-col items-center justify-center py-16 text-center">
             <h3 className="text-lg font-semibold text-gray-900 mb-1">{title || 'Nothing here yet'}</h3>

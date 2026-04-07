@@ -1,11 +1,21 @@
-const COLORS = {
+interface ColorDef {
+    bg: string;
+    text: string;
+}
+
+const COLORS: Record<string, ColorDef> = {
     Active:   { bg: 'bg-emerald-50',  text: 'text-emerald-700' },
     Inactive: { bg: 'bg-gray-100',    text: 'text-gray-500' },
     Pending:  { bg: 'bg-amber-50',    text: 'text-amber-700' },
     Error:    { bg: 'bg-red-50',      text: 'text-red-700' },
 };
 
-export function Badge({ label, colorMap }) {
+interface BadgeProps {
+    label: string;
+    colorMap?: Record<string, ColorDef>;
+}
+
+export function Badge({ label, colorMap }: BadgeProps) {
     const colors = colorMap || COLORS;
     const c = colors[label] || { bg: 'bg-gray-100', text: 'text-gray-600' };
     return (
