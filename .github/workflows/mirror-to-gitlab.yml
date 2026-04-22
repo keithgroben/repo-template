@@ -26,4 +26,5 @@ jobs:
           esac
           REPO="${{ github.event.repository.name }}"
           git remote add gitlab "https://oauth2:${GL_TOKEN}@gitlab.com/${GL_OWNER}/${REPO}.git"
-          git push --mirror gitlab
+          git push --force --all gitlab
+          git push --force --tags gitlab
