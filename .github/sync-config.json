@@ -1,6 +1,7 @@
 {
   "files": [
     "PROJECT_PROTOCOL.md",
+    "docs/r7c-standards.md",
     "docs/architecture-patterns.md",
     "docs/branching.md",
     "docs/versioning.md",

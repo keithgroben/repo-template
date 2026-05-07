@@ -18,6 +18,27 @@ Opinionated full-stack app template for building internal tools and web apps wit
 
 **Template sync** — a GitHub Action that propagates shared protocol files (`PROJECT_PROTOCOL.md`, `docs/branching.md`, etc.) to downstream repos via automated PRs.
 
+**Ecosystem standards** — this template implements the R7 Creative ecosystem development standards (`r7c-context/standards/`). See `docs/r7c-standards.md` for the standards index and rule hierarchy.
+
+## Local Development
+
+This template follows the `local-first-development` standard — all development happens locally; production is for running deployed applications only.
+
+**Prerequisites**: Node 20+, a local `.env` (copy from `.env.example`).
+
+| Command | What it does |
+|---------|--------------|
+| `npm install` | Install dependencies |
+| `npm run dev` | Run the Hono API with `tsx watch` (auto-reload on save) |
+| `npm run dev:client` | Run the Vite dev server (HMR for the SPA) |
+| `npm run build` | Production build of the SPA into `dist/` |
+| `npm run preview` | Preview the production build locally |
+| `npm run start` | Run the API in production mode (no watch) |
+| `npm run smoke` | Health check + API route smoke tests |
+| `npm run typecheck` | `tsc --noEmit` — strict-mode type check across frontend + backend |
+
+For full-stack dev, run `npm run dev` and `npm run dev:client` in separate terminals. Vite proxies `/api/*` to the Hono server on `:3001`.
+
 ## How to use this
 
 1. **Clone or fork** this repo to start a new app
@@ -69,6 +90,7 @@ If you're using Cursor, add `PROJECT_PROTOCOL.md` as a [Cursor Rule](https://doc
 | File | Purpose | Syncs to apps? |
 |------|---------|----------------|
 | `PROJECT_PROTOCOL.md` | Claude Code session rules and phase gates | Yes |
+| `docs/r7c-standards.md` | Index of R7C ecosystem standards inherited by this template + current divergences | Yes |
 | `CLAUDE.md` | App-specific context — fill in per project | No |
 | `README-TEMPLATE.md` | README starter for app repos | No |
 | `CHANGELOG-TEMPLATE.md` | Changelog starter for app repos | No |

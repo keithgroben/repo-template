@@ -8,6 +8,25 @@ This document governs every Claude Code session on this repo. Read it first. Fol
 
 ---
 
+## Standards Inheritance
+
+This repo inherits ecosystem-wide rules from **`r7c-context/standards/`**. Those standards are the source of truth — this protocol is the default repo implementation of them, and apps built from this template inherit both.
+
+**Rule hierarchy** (highest authority first):
+1. `r7c-context/standards/*` — ecosystem law (covers all coding agents and all R7C repos)
+2. `repo-template/*` — default repo implementation (this protocol, the docs, the file structure)
+3. Repo-local files — app-specific context and explicitly documented exceptions
+
+A repo-local file may add context but must not silently override an ecosystem standard. See `docs/r7c-standards.md` for the standards index, what this template implements, and the auditable list of current divergences.
+
+The protocol below operationalizes (in particular):
+- `agent-operating-standard.md` — boot, phase gates, scope discipline, changelog release gate
+- `scope-governance-standard.md` — Phase 0 (Brief) and Phase 0.5 (Milestones) gates
+- `repo-compliance-standard.md` — required files
+- `local-first-development.md` — develop locally, deploy intentionally
+
+---
+
 ## Boot Sequence
 
 At the start of every session, read the following in this order:
@@ -182,3 +201,12 @@ The next model — whether Haiku, Sonnet, or Opus — will read `git log`, the o
 - Write decisions and lessons learned to `docs/decisions.md` when we solve a hard problem.
 - Never start a session without reading the recent commits and open issues first.
 - Never end a session without a commit message that tells the next model what happened and what's next.
+
+### Changelog Release Gate
+
+From `r7c-context/standards/agent-operating-standard.md`:
+
+- Every code change that will be merged or deployed must include a matching `CHANGELOG.md` update in the same branch / PR / session handoff.
+- Do not mark work as done, request a deploy, or confirm deploy readiness until the changelog entry exists — or the change is explicitly classified in the commit/PR as non-user-facing and no-changelog-needed.
+- Changelog entries describe shipped behavior, fixes, migrations, infrastructure changes, and user-visible workflow changes in plain language.
+- Never edit production changelog files directly. Production receives changelog updates only through the normal repo / build / deploy process.

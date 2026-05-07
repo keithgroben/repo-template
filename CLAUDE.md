@@ -2,6 +2,8 @@
 
 > This file gives Claude Code the app-specific context it needs to work effectively. Updated per-project. Read at session start alongside PROJECT_PROTOCOL.md and docs/overview.md.
 >
+> **Standards inheritance**: This repo inherits ecosystem rules from `r7c-context/standards/`. This file holds *app-specific* context only — never override ecosystem standards here. See `docs/r7c-standards.md` for the standards index and rule hierarchy.
+>
 > **Multi-model sessions**: See `docs/ai-collaboration.md` for the Haiku → Sonnet → Opus pipeline. Cross-session context comes from `git log`, this file, and the open issues — there is no per-repo handoff file.
 
 ---

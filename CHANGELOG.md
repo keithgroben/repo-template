@@ -8,10 +8,15 @@ Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 - **`CHANGELOG-TEMPLATE.md`**: Starter changelog scaffold for new app repos created from this template
 - **`docs/project-brief.md`**: Phase Zero artifact template. Captures product, constraints, in/out-of-scope boundaries, architecture sketch, smallest useful version, boundary contracts, integration risks, and isolation test plan. Must be approved before any roadmap entries, issues, or code.
 - **`docs/milestones.md`**: Bridge between brief and roadmap. Each milestone groups roadmap entries (`vX.Y.0`) into a shippable user-visible slice with done criteria that reference brief boundary contracts, isolation tests, and integration risks.
+- **`docs/r7c-standards.md`**: Index of R7C ecosystem standards (`r7c-context/standards/`) that this template inherits, with a mapping table from each standard to where this template implements it, and an auditable list of current divergences. Synced to downstream repos via `.github/sync-config.json`.
+- **`README.md` → Local Development section**: Operationalizes `local-first-development.md` — documents prereqs and every `npm run` command with what it does and when to use it.
 
 ### Changed
 - **README.md**: Setup steps updated to reference `CHANGELOG-TEMPLATE.md` so new repos start with a populated changelog
 - **`PROJECT_PROTOCOL.md`**: Phase Zero gate restored and strengthened. Added Phase 0 (Brief) with explicit prohibition on roadmap entries, GitHub issues, source code, and architecture decisions until `docs/project-brief.md` is approved. Added Phase 0.5 (Milestones) requiring approved milestone breakdown before any roadmap entry. Phase 2 (Issue) now requires brief revision when a feature introduces a new integration risk. Migration phase gates updated to require a branched brief (`docs/project-brief-v2.md`) for v2.0 work. Boot sequence updated to read brief and milestones. Brief gate applies to new repos and existing repos starting new major scope; not retroactive for established repos.
+- **`PROJECT_PROTOCOL.md`**: Added *Standards Inheritance* section near the top defining the rule hierarchy (`r7c-context/standards/` > `repo-template/` > repo-local) and naming the standards this protocol operationalizes. Added *Changelog Release Gate* under Rules, sourced verbatim from `agent-operating-standard.md` — every merged/deployed change must include a matching changelog entry; work cannot be marked done without one unless explicitly classified non-user-facing.
+- **`CLAUDE.md`**: Added standards-inheritance note at the top — repo-local app context never overrides ecosystem standards.
+- **`.github/sync-config.json`**: Added `docs/r7c-standards.md` to the propagation list so downstream repos inherit the standards index automatically.
 - **`docs/roadmap.md`**: Header note added clarifying the file contains only approved, implementation-ready features. Each `vX.Y.0` template entry now requires a `**Milestone**` reference linking back to `docs/milestones.md`.
 
 ### Fixed
